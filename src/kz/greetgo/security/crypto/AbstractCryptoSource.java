@@ -1,4 +1,4 @@
-package kz.greetgo.mvc.security;
+package kz.greetgo.security.crypto;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -14,7 +14,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-public abstract class AbstractSecuritySource implements SecuritySource {
+public abstract class AbstractCryptoSource implements CryptoSource {
 
   public static final int DEFAULT_KEY_SIZE = 1024;
   public static final int DEFAULT_BLOCK_SIZE = 117;
@@ -33,7 +33,7 @@ public abstract class AbstractSecuritySource implements SecuritySource {
 
   protected abstract boolean hasKeys();
 
-  protected abstract SecuritySourceConfig conf();
+  protected abstract CryptoSourceConfig conf();
 
   @Override
   public int getBlockSize() {

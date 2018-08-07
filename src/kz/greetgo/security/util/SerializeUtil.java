@@ -1,4 +1,4 @@
-package kz.greetgo.mvc.security;
+package kz.greetgo.security.util;
 
 import java.io.*;
 

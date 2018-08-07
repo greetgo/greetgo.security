@@ -1,6 +1,6 @@
-package kz.greetgo.mvc.security;
+package kz.greetgo.security.crypto;
 
-public interface SecuritySourceConfig {
+public interface CryptoSourceConfig {
   String secureRandomAlgorithm();
   
   String messageDigestAlgorithm();

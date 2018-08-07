@@ -1,4 +1,4 @@
-package kz.greetgo.mvc.security;
+package kz.greetgo.security.crypto;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -7,15 +7,15 @@ import java.io.FileOutputStream;
 
 import kz.greetgo.util.ServerUtil;
 
-public class SecuritySourceOnFiles extends AbstractSecuritySource {
+public class CryptoSourceOnFiles extends AbstractCryptoSource {
   
   private final int keySize, blockSize;
   private final File privateKeyFile;
   private final File publicKeyFile;
-  private final SecuritySourceConfig conf;
+  private final CryptoSourceConfig conf;
   
-  public SecuritySourceOnFiles(int keySize, int blockSize, File privateKeyFile, File publicKeyFile,
-      SecuritySourceConfig conf) {
+  public CryptoSourceOnFiles(int keySize, int blockSize, File privateKeyFile, File publicKeyFile,
+                             CryptoSourceConfig conf) {
     this.keySize = keySize;
     this.blockSize = blockSize;
     this.privateKeyFile = privateKeyFile;
@@ -23,13 +23,13 @@ public class SecuritySourceOnFiles extends AbstractSecuritySource {
     this.conf = conf;
   }
   
-  public SecuritySourceOnFiles(File privateKeyFile, File publicKeyFile, SecuritySourceConfig conf) {
+  public CryptoSourceOnFiles(File privateKeyFile, File publicKeyFile, CryptoSourceConfig conf) {
     this(DEFAULT_KEY_SIZE, DEFAULT_BLOCK_SIZE, privateKeyFile, publicKeyFile, conf);
   }
   
-  public SecuritySourceOnFiles(File privateKeyFile, File publicKeyFile) {
+  public CryptoSourceOnFiles(File privateKeyFile, File publicKeyFile) {
     this(DEFAULT_KEY_SIZE, DEFAULT_BLOCK_SIZE, privateKeyFile, publicKeyFile,
-        new SecuritySourceConfigDefault());
+        new CryptoSourceConfigDefault());
   }
   
   @Override
@@ -94,7 +94,7 @@ public class SecuritySourceOnFiles extends AbstractSecuritySource {
   }
   
   @Override
-  protected SecuritySourceConfig conf() {
+  protected CryptoSourceConfig conf() {
     return conf;
   }
 }

@@ -1,6 +1,6 @@
-package kz.greetgo.mvc.security;
+package kz.greetgo.security.crypto;
 
-public class SecuritySourceConfigDefault implements SecuritySourceConfig {
+public class CryptoSourceConfigDefault implements CryptoSourceConfig {
   @Override
   public String secureRandomAlgorithm() {
     return "SHA1PRNG";

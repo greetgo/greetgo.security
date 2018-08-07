@@ -1,6 +1,6 @@
-package kz.greetgo.mvc.security;
+package kz.greetgo.security.crypto;
 
-public interface SecurityCrypto {
+public interface Crypto {
   byte[] encrypt(byte[] bytes);
   
   byte[] decrypt(byte[] encryptedBytes);

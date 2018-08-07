@@ -19,6 +19,9 @@ repositories {
 }
 
 dependencies {
+
+  compile "kz.greetgo:greetgo.util:2.0.0"
+
   testCompile 'org.testng:testng:6.5.1'
   compile 'org.easytesting:fest-assert-core:2.0M10'
 }

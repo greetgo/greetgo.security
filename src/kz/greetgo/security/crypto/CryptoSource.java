@@ -1,4 +1,4 @@
-package kz.greetgo.mvc.security;
+package kz.greetgo.security.crypto;
 
 import java.security.MessageDigest;
 import java.security.PrivateKey;
@@ -7,7 +7,7 @@ import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
 
-public interface SecuritySource {
+public interface CryptoSource {
   Cipher getCipher();
   
   PublicKey getPublicKey();
