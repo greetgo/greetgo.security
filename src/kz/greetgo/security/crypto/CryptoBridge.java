@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.InvalidKeyException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -242,5 +243,10 @@ public class CryptoBridge implements Crypto {
       if (trace != null) trace.trace("CP q23hrbwh4g5", e);
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public SecureRandom rnd() {
+    return cryptoSource.getRandom();
   }
 }

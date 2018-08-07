@@ -9,37 +9,18 @@ import java.io.FileOutputStream;
 
 public class CryptoSourceOnFiles extends AbstractCryptoSource {
 
-  private final int keySize, blockSize;
   private final File privateKeyFile;
   private final File publicKeyFile;
   private final CryptoSourceConfig conf;
 
-  public CryptoSourceOnFiles(int keySize, int blockSize, File privateKeyFile, File publicKeyFile,
-                             CryptoSourceConfig conf) {
-    this.keySize = keySize;
-    this.blockSize = blockSize;
+  public CryptoSourceOnFiles(File privateKeyFile, File publicKeyFile, CryptoSourceConfig conf) {
     this.privateKeyFile = privateKeyFile;
     this.publicKeyFile = publicKeyFile;
     this.conf = conf;
   }
 
-  public CryptoSourceOnFiles(File privateKeyFile, File publicKeyFile, CryptoSourceConfig conf) {
-    this(DEFAULT_KEY_SIZE, DEFAULT_BLOCK_SIZE, privateKeyFile, publicKeyFile, conf);
-  }
-
   public CryptoSourceOnFiles(File privateKeyFile, File publicKeyFile) {
-    this(DEFAULT_KEY_SIZE, DEFAULT_BLOCK_SIZE, privateKeyFile, publicKeyFile,
-      new CryptoSourceConfigDefault());
-  }
-
-  @Override
-  protected int getKeySize() {
-    return keySize;
-  }
-
-  @Override
-  public int getBlockSize() {
-    return blockSize;
+    this(privateKeyFile, publicKeyFile, new CryptoSourceConfigDefault());
   }
 
   @Override

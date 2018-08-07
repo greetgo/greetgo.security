@@ -10,4 +10,8 @@ public interface CryptoSourceConfig {
   String cipherAlgorithm();
   
   String keyFactoryAlgorithm();
+
+  int keySize();
+
+  int blockSize();
 }

@@ -16,11 +16,8 @@ import java.security.spec.X509EncodedKeySpec;
 
 public abstract class AbstractCryptoSource implements CryptoSource {
 
-  public static final int DEFAULT_KEY_SIZE = 1024;
-  public static final int DEFAULT_BLOCK_SIZE = 117;
-
   protected int getKeySize() {
-    return DEFAULT_KEY_SIZE;
+    return conf().keySize();
   }
 
   protected abstract byte[] getPrivateKeyBytes();
@@ -37,7 +34,7 @@ public abstract class AbstractCryptoSource implements CryptoSource {
 
   @Override
   public int getBlockSize() {
-    return DEFAULT_BLOCK_SIZE;
+    return conf().blockSize();
   }
 
   @Override
@@ -105,22 +102,15 @@ public abstract class AbstractCryptoSource implements CryptoSource {
     }
   }
 
-  protected void performReadingException(Exception e) {
-    e.printStackTrace();
-  }
-
   protected void doPrepareKeys() {
     if (hasKeys()) {
       try {
         readKeysFromFiles();
         return;
       } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-        performReadingException(e);
+        generateKeys();
+        saveKeys();
       }
-    }
-    {
-      generateKeys();
-      saveKeys();
     }
   }
 

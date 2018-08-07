@@ -25,4 +25,14 @@ public class CryptoSourceConfigDefault implements CryptoSourceConfig {
   public String keyFactoryAlgorithm() {
     return "RSA";
   }
+
+  @Override
+  public int keySize() {
+    return 1024;
+  }
+
+  @Override
+  public int blockSize() {
+    return 117;
+  }
 }
