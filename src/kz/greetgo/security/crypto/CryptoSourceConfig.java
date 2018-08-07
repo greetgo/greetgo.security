@@ -11,7 +11,5 @@ public interface CryptoSourceConfig {
   
   String keyFactoryAlgorithm();
 
-  int keySize();
-
   int blockSize();
 }

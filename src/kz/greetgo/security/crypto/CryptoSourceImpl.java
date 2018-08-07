@@ -14,33 +14,35 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-public abstract class AbstractCryptoSource implements CryptoSource {
+public class CryptoSourceImpl implements CryptoSource {
 
-  protected int getKeySize() {
-    return conf().keySize();
+  private boolean hasKeys() {
+    return privateKeyAccess.exists() && publicKeyAccess.exists();
   }
 
-  protected abstract byte[] getPrivateKeyBytes();
+  private final ContentAccess privateKeyAccess;
 
-  protected abstract void setPrivateKeyBytes(byte[] bytes);
+  private final ContentAccess publicKeyAccess;
+  private final int keySize;
 
-  protected abstract byte[] getPublicKeyBytes();
+  private final CryptoSourceConfig conf;
 
-  protected abstract void setPublicKeyBytes(byte[] bytes);
-
-  protected abstract boolean hasKeys();
-
-  protected abstract CryptoSourceConfig conf();
+  public CryptoSourceImpl(CryptoSourceConfig conf, ContentAccess privateKeyAccess, ContentAccess publicKeyAccess, int keySize) {
+    this.conf = conf;
+    this.privateKeyAccess = privateKeyAccess;
+    this.publicKeyAccess = publicKeyAccess;
+    this.keySize = keySize;
+  }
 
   @Override
   public int getBlockSize() {
-    return conf().blockSize();
+    return conf.blockSize();
   }
 
   @Override
   public Cipher getCipher() {
     try {
-      return Cipher.getInstance(conf().cipherAlgorithm());
+      return Cipher.getInstance(conf.cipherAlgorithm());
     } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
       throw new RuntimeException(e);
     }
@@ -76,7 +78,7 @@ public abstract class AbstractCryptoSource implements CryptoSource {
   public SecureRandom getRandom() {
     if (random.get() != null) return random.get();
     try {
-      SecureRandom instance = SecureRandom.getInstance(conf().secureRandomAlgorithm());
+      SecureRandom instance = SecureRandom.getInstance(conf.secureRandomAlgorithm());
       random.set(instance);
       return instance;
     } catch (NoSuchAlgorithmException e) {
@@ -94,7 +96,7 @@ public abstract class AbstractCryptoSource implements CryptoSource {
     }
 
     try {
-      MessageDigest instance = MessageDigest.getInstance(conf().messageDigestAlgorithm());
+      MessageDigest instance = MessageDigest.getInstance(conf.messageDigestAlgorithm());
       messageDigest.set(instance);
       return instance;
     } catch (NoSuchAlgorithmException e) {
@@ -103,35 +105,35 @@ public abstract class AbstractCryptoSource implements CryptoSource {
   }
 
   protected void doPrepareKeys() {
-    if (hasKeys()) {
-      try {
+
+    try {
+      if (hasKeys()) {
         readKeysFromFiles();
         return;
-      } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-        generateKeys();
-        saveKeys();
       }
-    }
+    } catch (NoSuchAlgorithmException | InvalidKeySpecException ignore) {}
+    generateKeys();
+    saveKeys();
   }
 
   protected void saveKeys() {
     {
       final PKCS8EncodedKeySpec privateKetSpec = new PKCS8EncodedKeySpec(privateKey.get()
         .getEncoded());
-      setPrivateKeyBytes(privateKetSpec.getEncoded());
+      privateKeyAccess.uploadBytes(privateKetSpec.getEncoded());
     }
     {
       X509EncodedKeySpec publicSpec = new X509EncodedKeySpec(publicKey.get().getEncoded());
-      setPublicKeyBytes(publicSpec.getEncoded());
+      publicKeyAccess.uploadBytes(publicSpec.getEncoded());
     }
   }
 
   protected void generateKeys() {
     try {
 
-      final KeyPairGenerator kpg = KeyPairGenerator.getInstance(conf().keyPairGeneratorAlgorithm());
+      final KeyPairGenerator kpg = KeyPairGenerator.getInstance(conf.keyPairGeneratorAlgorithm());
 
-      kpg.initialize(getKeySize(), getRandom());
+      kpg.initialize(keySize, getRandom());
 
       final KeyPair keyPair = kpg.generateKeyPair();
 
@@ -145,10 +147,10 @@ public abstract class AbstractCryptoSource implements CryptoSource {
 
   protected void readKeysFromFiles() throws NoSuchAlgorithmException, InvalidKeySpecException {
 
-    final PKCS8EncodedKeySpec keySpecPrivate = new PKCS8EncodedKeySpec(getPrivateKeyBytes());
-    final X509EncodedKeySpec keySpecPublic = new X509EncodedKeySpec(getPublicKeyBytes());
+    final PKCS8EncodedKeySpec keySpecPrivate = new PKCS8EncodedKeySpec(privateKeyAccess.downloadBytes());
+    final X509EncodedKeySpec keySpecPublic = new X509EncodedKeySpec(publicKeyAccess.downloadBytes());
 
-    final KeyFactory keyFactory = KeyFactory.getInstance(conf().keyFactoryAlgorithm());
+    final KeyFactory keyFactory = KeyFactory.getInstance(conf.keyFactoryAlgorithm());
 
     privateKey.set(keyFactory.generatePrivate(keySpecPrivate));
     publicKey.set(keyFactory.generatePublic(keySpecPublic));
