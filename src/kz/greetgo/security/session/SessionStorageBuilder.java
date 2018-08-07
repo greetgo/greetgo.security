@@ -5,7 +5,7 @@ import kz.greetgo.db.Jdbc;
 
 import java.util.Objects;
 
-class SessionStorageBuilder {
+public class SessionStorageBuilder {
   private DbType dbType;
 
   static class Structure {
@@ -22,6 +22,11 @@ class SessionStorageBuilder {
 
   final Structure structure = new Structure();
 
+  private SessionStorageBuilder() {}
+
+  public static SessionStorageBuilder newBuilder() {
+    return new SessionStorageBuilder();
+  }
 
   public SessionStorageBuilder setJdbc(DbType dbType, Jdbc jdbc) {
     Objects.requireNonNull(dbType);

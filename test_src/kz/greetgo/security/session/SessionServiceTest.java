@@ -1,5 +1,8 @@
 package kz.greetgo.security.session;
 
+import kz.greetgo.security.SecurityBuilders;
+import kz.greetgo.security.util.SessionDot;
+import kz.greetgo.security.util.TestSessionStorage;
 import kz.greetgo.util.RND;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -24,8 +27,7 @@ public class SessionServiceTest {
   public void createSessionService() {
     sessionStorage = new TestSessionStorage();
 
-
-    sessionService = SessionBuilders.newServiceBuilder()
+    sessionService = SecurityBuilders.newSessionServiceBuilder()
       .setOldSessionAgeInHours(OLD_SESSION_AGE_IN_HOURS)
       .setSessionIdLength(17)
       .setTokenLength(17)

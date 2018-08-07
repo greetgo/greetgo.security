@@ -1,17 +1,17 @@
-package kz.greetgo.security.session;
+package kz.greetgo.security.util;
 
 import kz.greetgo.security.session.SessionRow;
 
 import java.util.Date;
 
 public class SessionDot {
-  final String id;
-  String token;
-  Object sessionData;
-  Date insertedAt = new Date();
-  Date lastTouchedAt = new Date();
+  public final String id;
+  public String token;
+  public Object sessionData;
+  public Date insertedAt = new Date();
+  public Date lastTouchedAt = new Date();
 
-  SessionDot(String id) {
+  public SessionDot(String id) {
     this.id = id;
   }
 

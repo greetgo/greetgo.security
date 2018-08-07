@@ -1,4 +1,4 @@
-package kz.greetgo.security.session.factory;
+package kz.greetgo.security.factory;
 
 import javax.sql.DataSource;
 import java.io.PrintWriter;

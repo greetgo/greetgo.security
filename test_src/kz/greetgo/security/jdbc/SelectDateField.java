@@ -1,4 +1,4 @@
-package kz.greetgo.security.session.jdbc;
+package kz.greetgo.security.jdbc;
 
 import kz.greetgo.db.ConnectionCallback;
 

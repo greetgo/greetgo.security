@@ -8,7 +8,11 @@ public class SessionServiceBuilder {
   int sessionIdLength = 15;
   int tokenLength = 15;
 
-  SessionServiceBuilder() {}
+  private SessionServiceBuilder() {}
+
+  public static SessionServiceBuilder newBuilder() {
+    return new SessionServiceBuilder();
+  }
 
   public SessionServiceBuilder setStorage(SessionStorage storage) {
     checkBuilt();

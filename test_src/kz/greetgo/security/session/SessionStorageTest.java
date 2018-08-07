@@ -1,10 +1,11 @@
 package kz.greetgo.security.session;
 
-import kz.greetgo.security.session.factory.JdbcFactory;
-import kz.greetgo.security.session.jdbc.SelectBytesField;
-import kz.greetgo.security.session.jdbc.SelectDateField;
-import kz.greetgo.security.session.jdbc.SelectNow;
-import kz.greetgo.security.session.jdbc.SelectStrField;
+import kz.greetgo.security.SecurityBuilders;
+import kz.greetgo.security.factory.JdbcFactory;
+import kz.greetgo.security.jdbc.SelectBytesField;
+import kz.greetgo.security.jdbc.SelectDateField;
+import kz.greetgo.security.jdbc.SelectNow;
+import kz.greetgo.security.jdbc.SelectStrField;
 import kz.greetgo.security.session.jdbc.SelectIntOrNull;
 import kz.greetgo.security.session.jdbc.Update;
 import kz.greetgo.db.DbType;
@@ -56,7 +57,7 @@ public class SessionStorageTest {
     Jdbc jdbc = jdbcFactory.create();
 
     String tableName = "s_storage_" + RND.intStr(7);
-    SessionStorage sessionStorage = SessionBuilders.newStorageBuilder()
+    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
       .setJdbc(dbType, jdbc)
       .setTableName(tableName)
       .setFieldId("id")
@@ -97,7 +98,7 @@ public class SessionStorageTest {
     jdbcFactory.dbType = dbType;
     Jdbc jdbc = jdbcFactory.create();
 
-    SessionStorage sessionStorage = SessionBuilders.newStorageBuilder()
+    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
       .setJdbc(dbType, jdbc)
       .build();
 
@@ -127,7 +128,7 @@ public class SessionStorageTest {
     jdbcFactory.dbType = dbType;
     Jdbc jdbc = jdbcFactory.create();
 
-    SessionStorage sessionStorage = SessionBuilders.newStorageBuilder()
+    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
       .setJdbc(dbType, jdbc)
       .build();
 
@@ -149,7 +150,7 @@ public class SessionStorageTest {
     jdbcFactory.dbType = dbType;
     Jdbc jdbc = jdbcFactory.create();
 
-    SessionStorage sessionStorage = SessionBuilders.newStorageBuilder()
+    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
       .setJdbc(dbType, jdbc)
       .build();
 
@@ -177,7 +178,7 @@ public class SessionStorageTest {
     jdbcFactory.dbType = dbType;
     Jdbc jdbc = jdbcFactory.create();
 
-    SessionStorage sessionStorage = SessionBuilders.newStorageBuilder()
+    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
       .setJdbc(dbType, jdbc)
       .build();
 
@@ -204,7 +205,7 @@ public class SessionStorageTest {
     jdbcFactory.dbType = dbType;
     Jdbc jdbc = jdbcFactory.create();
 
-    SessionStorage sessionStorage = SessionBuilders.newStorageBuilder()
+    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
       .setJdbc(dbType, jdbc)
       .build();
 
@@ -237,7 +238,7 @@ public class SessionStorageTest {
     jdbcFactory.dbType = dbType;
     Jdbc jdbc = jdbcFactory.create();
 
-    SessionStorage sessionStorage = SessionBuilders.newStorageBuilder()
+    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
       .setJdbc(dbType, jdbc)
       .build();
 
@@ -255,7 +256,7 @@ public class SessionStorageTest {
     jdbcFactory.dbType = dbType;
     Jdbc jdbc = jdbcFactory.create();
 
-    SessionStorage sessionStorage = SessionBuilders.newStorageBuilder()
+    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
       .setJdbc(dbType, jdbc)
       .build();
 
@@ -287,7 +288,7 @@ public class SessionStorageTest {
     jdbcFactory.dbType = dbType;
     Jdbc jdbc = jdbcFactory.create();
 
-    SessionStorage sessionStorage = SessionBuilders.newStorageBuilder()
+    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
       .setJdbc(dbType, jdbc)
       .build();
 
@@ -312,7 +313,7 @@ public class SessionStorageTest {
     jdbcFactory.dbType = dbType;
     Jdbc jdbc = jdbcFactory.create();
 
-    SessionStorage sessionStorage = SessionBuilders.newStorageBuilder()
+    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
       .setJdbc(dbType, jdbc)
       .build();
 
@@ -330,7 +331,7 @@ public class SessionStorageTest {
     jdbcFactory.dbType = dbType;
     Jdbc jdbc = jdbcFactory.create();
 
-    SessionStorage sessionStorage = SessionBuilders.newStorageBuilder()
+    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
       .setJdbc(dbType, jdbc)
       .build();
 
@@ -355,7 +356,7 @@ public class SessionStorageTest {
     jdbcFactory.dbType = dbType;
     Jdbc jdbc = jdbcFactory.create();
 
-    SessionStorage sessionStorage = SessionBuilders.newStorageBuilder()
+    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
       .setJdbc(dbType, jdbc)
       .build();
 

@@ -1,4 +1,4 @@
-package kz.greetgo.security.session.factory;
+package kz.greetgo.security.factory;
 
 import kz.greetgo.db.AbstractJdbcWithDataSource;
 import kz.greetgo.db.Jdbc;
