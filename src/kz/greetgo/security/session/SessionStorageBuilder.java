@@ -41,6 +41,10 @@ public class SessionStorageBuilder {
       return new SessionStoragePostgresAdapter(structure);
     }
 
+    if (dbType == DbType.Oracle) {
+      return new SessionStorageOracleAdapter(structure);
+    }
+
     throw new RuntimeException("Unknown db type = " + dbType);
   }
 

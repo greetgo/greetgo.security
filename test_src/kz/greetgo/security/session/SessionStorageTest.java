@@ -1,5 +1,7 @@
 package kz.greetgo.security.session;
 
+import kz.greetgo.db.DbType;
+import kz.greetgo.db.Jdbc;
 import kz.greetgo.security.SecurityBuilders;
 import kz.greetgo.security.factory.JdbcFactory;
 import kz.greetgo.security.jdbc.SelectBytesField;
@@ -8,8 +10,6 @@ import kz.greetgo.security.jdbc.SelectNow;
 import kz.greetgo.security.jdbc.SelectStrField;
 import kz.greetgo.security.session.jdbc.SelectIntOrNull;
 import kz.greetgo.security.session.jdbc.Update;
-import kz.greetgo.db.DbType;
-import kz.greetgo.db.Jdbc;
 import kz.greetgo.util.RND;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -43,6 +43,7 @@ public class SessionStorageTest {
   private Object[][] dbTypeDataProvider() {
     return new Object[][]{
       {DbType.Postgres}, {DbType.Postgres},
+      {DbType.Oracle}, {DbType.Oracle},
     };
   }
 

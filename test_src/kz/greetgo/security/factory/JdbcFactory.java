@@ -18,6 +18,12 @@ public class JdbcFactory {
       return factory.create();
     }
 
+    if (dbType == DbType.Oracle) {
+      OracleFactory factory = new OracleFactory();
+      factory.username = dbName;
+      return factory.create();
+    }
+
     throw new RuntimeException("Unsupported db " + dbType);
   }
 }
