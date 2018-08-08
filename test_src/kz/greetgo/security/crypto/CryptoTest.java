@@ -11,7 +11,10 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.security.SecureRandom;
+import java.util.Arrays;
 
+import static kz.greetgo.security.SecurityBuilders.newCryptoBuilder;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 public class CryptoTest {
@@ -27,7 +30,7 @@ public class CryptoTest {
       File privateKeyFile = new File(keysDir + suffix + ".private.key");
       File publicKeyFile = new File(keysDir + suffix + ".public.key");
 
-      return CryptoBuilder.newBuilder()
+      return newCryptoBuilder()
         .setKeySize(keySize)
         .inFiles(privateKeyFile, publicKeyFile)
         .setConfig(new CryptoSourceConfigDefault())
@@ -53,7 +56,7 @@ public class CryptoTest {
         jdbcFactory.dbType = dbType;
         Jdbc jdbc = jdbcFactory.create();
 
-        return CryptoBuilder.newBuilder()
+        return newCryptoBuilder()
           .setKeySize(keySize)
           .inDb(dbType, jdbc)
           .setConfig(new CryptoSourceConfigDefault())
@@ -80,7 +83,7 @@ public class CryptoTest {
         jdbcFactory.dbType = dbType;
         Jdbc jdbc = jdbcFactory.create();
 
-        return CryptoBuilder.newBuilder()
+        return newCryptoBuilder()
           .setKeySize(keySize)
           .inDb(dbType, jdbc)
           .setConfig(new CryptoSourceConfigDefault())
@@ -214,7 +217,7 @@ public class CryptoTest {
     jdbcFactory.dbType = DbType.Postgres;
     Jdbc jdbc = jdbcFactory.create();
 
-    CryptoBuilder.newBuilder()
+    newCryptoBuilder()
       .inDb(DbType.Postgres, jdbc)
       .setIdFieldNameForPrivateKey("a")
       .setIdFieldNameForPublicKey("b")
@@ -226,7 +229,7 @@ public class CryptoTest {
     jdbcFactory.dbType = DbType.Postgres;
     Jdbc jdbc = jdbcFactory.create();
 
-    CryptoBuilder.newBuilder()
+    newCryptoBuilder()
       .inDb(DbType.Postgres, jdbc)
       .setPrivateIdFieldLength(70)
       .setPublicIdFieldLength(80)
@@ -238,8 +241,59 @@ public class CryptoTest {
     jdbcFactory.dbType = DbType.Postgres;
     Jdbc jdbc = jdbcFactory.create();
 
-    CryptoBuilder.newBuilder()
+    newCryptoBuilder()
       .inDb(DbType.HSQLDB, jdbc)
       .build();
+  }
+
+  @Test(dataProvider = "mainDataProvider")
+  public void sign_verifySignature(CryptoSource cryptoSource, int arraySize) {
+    String suffix = RND.intStr(9);
+
+    Crypto crypto = cryptoSource.create(suffix);
+
+    byte[] bytes = RND.byteArray(arraySize);
+
+    //
+    //
+    byte[] signature = crypto.sign(bytes);
+    //
+    //
+
+    assertThat(signature).isNotNull();
+
+    //
+    //
+    boolean verificationResult = crypto.verifySignature(bytes, signature);
+    //
+    //
+
+    assertThat(verificationResult).isTrue();
+
+    bytes[3] = (byte) (bytes[3] ^ 1);//change one bit
+
+    //
+    //
+    boolean verificationResult2 = crypto.verifySignature(bytes, signature);
+    //
+    //
+
+    assertThat(verificationResult2).isFalse();
+  }
+
+  @Test(dataProvider = "mainDataProvider")
+  public void rnd(CryptoSource cryptoSource, int arraySize) {
+    String suffix = RND.intStr(9);
+
+    Crypto crypto = cryptoSource.create(suffix);
+
+    SecureRandom rnd = crypto.rnd();
+
+    long[] longs = rnd.longs().limit(arraySize * 100).toArray();
+    Arrays.sort(longs);
+
+    for (int i = 1; i < longs.length; i++) {
+      assertThat(longs[i - 1]).isNotEqualTo(longs[i]);
+    }
   }
 }
