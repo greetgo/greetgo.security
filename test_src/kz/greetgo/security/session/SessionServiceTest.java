@@ -2,9 +2,11 @@ package kz.greetgo.security.session;
 
 import kz.greetgo.security.crypto.Crypto;
 import kz.greetgo.security.util.SessionDot;
+import kz.greetgo.security.util.SkipListener;
 import kz.greetgo.security.util.TestSessionStorage;
 import kz.greetgo.util.RND;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -17,6 +19,7 @@ import static kz.greetgo.security.SecurityBuilders.newCryptoBuilder;
 import static kz.greetgo.security.SecurityBuilders.newSessionServiceBuilder;
 import static org.fest.assertions.api.Assertions.assertThat;
 
+@Listeners(SkipListener.class)
 public class SessionServiceTest {
 
   TestSessionStorage sessionStorage;

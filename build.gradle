@@ -52,6 +52,17 @@ tasks.withType(Javadoc) {
 }
 
 test.useTestNG()
+test.systemProperty("BUILD_DIR", project.buildDir.getAbsolutePath())
+test.systemProperty("PROJECT_DIR", project.projectDir.getAbsolutePath())
+test.afterTest { desc, result ->
+  def showNoteFile = project.buildDir.toPath().resolve("show_note.txt").toFile()
+  if (showNoteFile.exists()) {
+    logger.quiet showNoteFile.text
+    showNoteFile.delete()
+  }
+}
+
+//test { options.suites("test1.xml") }
 
 idea.module.inheritOutputDirs = false
 idea.module.outputDir = file("$buildDir/classes/main/")

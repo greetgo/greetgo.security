@@ -6,8 +6,10 @@ import kz.greetgo.security.crypto.errors.NotEqualsIdFieldLengths;
 import kz.greetgo.security.crypto.errors.NotSameIdFieldNames;
 import kz.greetgo.security.crypto.errors.UnsupportedDb;
 import kz.greetgo.security.factory.JdbcFactory;
+import kz.greetgo.security.util.SkipListener;
 import kz.greetgo.util.RND;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -17,6 +19,7 @@ import java.util.Arrays;
 import static kz.greetgo.security.SecurityBuilders.newCryptoBuilder;
 import static org.fest.assertions.api.Assertions.assertThat;
 
+@Listeners(SkipListener.class)
 public class CryptoTest {
 
   interface CryptoSource {

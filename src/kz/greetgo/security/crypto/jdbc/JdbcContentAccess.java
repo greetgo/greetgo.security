@@ -2,6 +2,7 @@ package kz.greetgo.security.crypto.jdbc;
 
 import kz.greetgo.db.Jdbc;
 import kz.greetgo.security.crypto.ContentAccess;
+import kz.greetgo.security.crypto.errors.SqlWrapper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -56,7 +57,7 @@ public class JdbcContentAccess implements ContentAccess {
 
           createTable(con);
 
-        } else throw new RuntimeException("SQL State = " + e.getSQLState(), e);
+        } else throw new SqlWrapper(e);
       }
 
       try {
@@ -67,7 +68,7 @@ public class JdbcContentAccess implements ContentAccess {
 
           update(con, bytes);
 
-        } else throw new RuntimeException("SQL State = " + e.getSQLState(), e);
+        } else throw new SqlWrapper(e);
       }
 
       return null;

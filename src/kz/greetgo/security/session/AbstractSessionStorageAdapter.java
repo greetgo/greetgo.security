@@ -1,5 +1,6 @@
 package kz.greetgo.security.session;
 
+import kz.greetgo.security.crypto.errors.SqlWrapper;
 import kz.greetgo.security.session.jdbc.SelectDateOrNull;
 import kz.greetgo.security.session.jdbc.SelectFirstOrNull;
 import kz.greetgo.security.session.jdbc.SelectStrOrNull;
@@ -34,7 +35,7 @@ public abstract class AbstractSessionStorageAdapter implements SessionStorage {
           createSessionTable();
           return;
         }
-        throw new RuntimeException("SQL State = " + sqlException.getSQLState(), sqlException);
+        throw new SqlWrapper(sqlException);
       }
       throw e;
     }

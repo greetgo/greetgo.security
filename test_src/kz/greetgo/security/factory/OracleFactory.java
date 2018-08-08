@@ -3,6 +3,7 @@ package kz.greetgo.security.factory;
 import kz.greetgo.db.AbstractJdbcWithDataSource;
 import kz.greetgo.db.Jdbc;
 import kz.greetgo.db.TransactionManager;
+import kz.greetgo.security.crypto.errors.SqlWrapper;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -17,11 +18,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 class OracleFactory {
   public String username;
   private final String password = "111";
-
-  private static String changeUrlDbName(String url, String dbName) {
-    int idx = url.lastIndexOf('/');
-    return url.substring(0, idx + 1) + dbName;
-  }
 
   public Jdbc create() {
 
@@ -42,7 +38,7 @@ class OracleFactory {
       return directCreateJdbc();
 
     } catch (SQLException e) {
-      throw new RuntimeException("SQL State = " + e.getSQLState(), e);
+      throw new SqlWrapper(e);
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
     }

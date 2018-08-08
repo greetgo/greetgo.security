@@ -1,6 +1,5 @@
 package kz.greetgo.security.session;
 
-import kz.greetgo.security.session.SessionId;
 import kz.greetgo.util.RND;
 import org.testng.annotations.Test;
 

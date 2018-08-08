@@ -10,9 +10,11 @@ import kz.greetgo.security.jdbc.SelectNow;
 import kz.greetgo.security.jdbc.SelectStrField;
 import kz.greetgo.security.session.jdbc.SelectIntOrNull;
 import kz.greetgo.security.session.jdbc.Update;
+import kz.greetgo.security.util.SkipListener;
 import kz.greetgo.util.RND;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 import java.io.Serializable;
@@ -24,6 +26,7 @@ import java.util.GregorianCalendar;
 import static java.util.Collections.singletonList;
 import static org.fest.assertions.api.Assertions.assertThat;
 
+@Listeners(SkipListener.class)
 public class SessionStorageTest {
   JdbcFactory jdbcFactory = new JdbcFactory();
 
@@ -376,5 +379,4 @@ public class SessionStorageTest {
     Date actualDate = jdbc.execute(new SelectDateField("last_touched_at", "session_storage", sessionId));
     assertThat(actualDate).isBefore(nowAddHours(jdbc, -7));
   }
-
 }
