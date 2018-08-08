@@ -4,13 +4,13 @@ import java.sql.SQLException;
 import java.util.List;
 
 class SessionStoragePostgresAdapter extends AbstractSessionStorageAdapter implements SessionStorage {
-  SessionStoragePostgresAdapter(SessionStorageBuilder.Structure structure) {
-    super(structure);
+  SessionStoragePostgresAdapter(SessionStorageBuilder.Names names) {
+    super(names);
   }
 
   @Override
   protected String checkTableExistsSql() {
-    return "select " + structure.id + " from " + structure.tableName + " limit 1";
+    return "select " + names.id + " from " + names.tableName + " limit 1";
   }
 
   @Override
@@ -19,24 +19,24 @@ class SessionStoragePostgresAdapter extends AbstractSessionStorageAdapter implem
     sqlParams.add(identity.token);
     sqlParams.add(Serializer.serialize(sessionData));
 
-    return "insert into " + structure.tableName + " (" +
-      structure.id +
+    return "insert into " + names.tableName + " (" +
+      names.id +
       ", " +
-      structure.token +
+      names.token +
       ", " +
-      structure.sessionData +
+      names.sessionData +
       ") values (?, ?, ?)";
   }
 
   @Override
   protected String createSessionTableSql() {
-    return "create table " + structure.tableName + " (" +
-      "  " + structure.id + " varchar(50) not null," +
-      "  " + structure.token + " varchar(50)," +
-      "  " + structure.sessionData + " byTea," +
-      "  " + structure.insertedAt + " timestamp not null default clock_timestamp()," +
-      "  " + structure.lastTouchedAt + " timestamp not null default clock_timestamp()," +
-      "  primary key(" + structure.id + ")" +
+    return "create table " + names.tableName + " (" +
+      "  " + names.id + " varchar(50) not null," +
+      "  " + names.token + " varchar(50)," +
+      "  " + names.sessionData + " byTea," +
+      "  " + names.insertedAt + " timestamp not null default clock_timestamp()," +
+      "  " + names.lastTouchedAt + " timestamp not null default clock_timestamp()," +
+      "  primary key(" + names.id + ")" +
       ")";
   }
 
@@ -48,20 +48,20 @@ class SessionStoragePostgresAdapter extends AbstractSessionStorageAdapter implem
   @Override
   protected String loadLastTouchedAtSql(List<Object> sqlParams, String sessionId) {
     sqlParams.add(sessionId);
-    return "select " + structure.lastTouchedAt + " from " + structure.tableName + " where " + structure.id + " = ?";
+    return "select " + names.lastTouchedAt + " from " + names.tableName + " where " + names.id + " = ?";
   }
 
   @Override
   protected String zeroSessionAgeSql(List<Object> sqlParams, String sessionId) {
     sqlParams.add(sessionId);
-    return "update " + structure.tableName
-      + " set " + structure.lastTouchedAt + " = clock_timestamp()" +
-      " where " + structure.id + " = ?";
+    return "update " + names.tableName
+      + " set " + names.lastTouchedAt + " = clock_timestamp()" +
+      " where " + names.id + " = ?";
   }
 
   @Override
   protected String removeSessionsOlderThanSql(List<Object> sqlParams, int ageInHours) {
-    return "delete from " + structure.tableName + " where " + structure.lastTouchedAt
+    return "delete from " + names.tableName + " where " + names.lastTouchedAt
       + " < clock_timestamp() - interval '" + ageInHours + " hours'";
   }
 }

@@ -1,6 +1,7 @@
 package kz.greetgo.security;
 
 import kz.greetgo.security.crypto.CryptoBuilder;
+import kz.greetgo.security.password.PasswordEncoderBuilder;
 import kz.greetgo.security.session.SessionServiceBuilder;
 import kz.greetgo.security.session.SessionStorageBuilder;
 
@@ -15,5 +16,9 @@ public class SecurityBuilders {
 
   public static CryptoBuilder newCryptoBuilder() {
     return CryptoBuilder.newBuilder();
+  }
+
+  public static PasswordEncoderBuilder newPasswordVerifierBuilder() {
+    return PasswordEncoderBuilder.newBuilder();
   }
 }

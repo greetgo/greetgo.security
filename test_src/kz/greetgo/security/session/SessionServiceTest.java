@@ -1,17 +1,20 @@
 package kz.greetgo.security.session;
 
-import kz.greetgo.security.SecurityBuilders;
+import kz.greetgo.security.crypto.Crypto;
 import kz.greetgo.security.util.SessionDot;
 import kz.greetgo.security.util.TestSessionStorage;
 import kz.greetgo.util.RND;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Map;
 
+import static kz.greetgo.security.SecurityBuilders.newCryptoBuilder;
+import static kz.greetgo.security.SecurityBuilders.newSessionServiceBuilder;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 public class SessionServiceTest {
@@ -27,7 +30,7 @@ public class SessionServiceTest {
   public void createSessionService() {
     sessionStorage = new TestSessionStorage();
 
-    sessionService = SecurityBuilders.newSessionServiceBuilder()
+    sessionService = newSessionServiceBuilder()
       .setOldSessionAgeInHours(OLD_SESSION_AGE_IN_HOURS)
       .setSessionIdLength(17)
       .setTokenLength(17)
@@ -589,5 +592,26 @@ public class SessionServiceTest {
     assertThat(sessionStorage.sessionMap.get(sessionId).lastTouchedAt).isAfter(nowAddHours(-7));
 
     assertThat(sessionStorage.loadSessionCount).isEqualTo(1);
+  }
+
+  @Test
+  public void saltGeneratorFromCrypto() {
+    String dir = "build/test_data/saltGeneratorFromCrypto/";
+
+    Crypto crypto = newCryptoBuilder()
+      .inFiles(new File(dir + "pri.key"), new File(dir + "pub.key"))
+      .build();
+
+    SessionService sessionService = newSessionServiceBuilder()
+      .setOldSessionAgeInHours(OLD_SESSION_AGE_IN_HOURS)
+      .setSessionIdLength(17)
+      .setTokenLength(17)
+      .setStorage(sessionStorage)
+      .setSaltGeneratorOnCrypto(crypto, 17)
+      .build();
+
+    SessionIdentity identity = sessionService.createSession(null);
+//    System.out.println(identity);
+    assertThat(identity).isNotNull();
   }
 }

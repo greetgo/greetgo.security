@@ -25,7 +25,7 @@ public class CryptoTest {
 
   private CryptoSource cryptoSourceInFiles(int keySize) {
     return suffix -> {
-      final String keysDir = "build/CryptoTest/keys/";
+      final String keysDir = "build/test_data/CryptoTest/keys/";
 
       File privateKeyFile = new File(keysDir + suffix + ".private.key");
       File publicKeyFile = new File(keysDir + suffix + ".public.key");

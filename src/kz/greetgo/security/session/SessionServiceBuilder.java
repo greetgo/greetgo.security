@@ -1,5 +1,7 @@
 package kz.greetgo.security.session;
 
+import kz.greetgo.security.crypto.Crypto;
+
 public class SessionServiceBuilder {
   SessionStorage storage;
   SaltGenerator saltGenerator;
@@ -29,6 +31,12 @@ public class SessionServiceBuilder {
   public SessionServiceBuilder setSaltGenerator(SaltGenerator saltGenerator) {
     checkBuilt();
     this.saltGenerator = saltGenerator;
+    return this;
+  }
+
+  public SessionServiceBuilder setSaltGeneratorOnCrypto(Crypto crypto, int saltLength) {
+    checkBuilt();
+    this.saltGenerator = new SaltGeneratorCryptoBridge(crypto, saltLength);
     return this;
   }
 

@@ -4,13 +4,13 @@ import java.sql.SQLException;
 import java.util.List;
 
 class SessionStorageOracleAdapter extends AbstractSessionStorageAdapter implements SessionStorage {
-  SessionStorageOracleAdapter(SessionStorageBuilder.Structure structure) {
-    super(structure);
+  SessionStorageOracleAdapter(SessionStorageBuilder.Names names) {
+    super(names);
   }
 
   @Override
   protected String checkTableExistsSql() {
-    return "select " + structure.id + " from " + structure.tableName + " where rowNum = 1";
+    return "select " + names.id + " from " + names.tableName + " where rowNum = 1";
   }
 
   @Override
@@ -19,24 +19,24 @@ class SessionStorageOracleAdapter extends AbstractSessionStorageAdapter implemen
     sqlParams.add(identity.token);
     sqlParams.add(Serializer.serialize(sessionData));
 
-    return "insert into " + structure.tableName + " (" +
-      structure.id +
+    return "insert into " + names.tableName + " (" +
+      names.id +
       ", " +
-      structure.token +
+      names.token +
       ", " +
-      structure.sessionData +
+      names.sessionData +
       ") values (?, ?, ?)";
   }
 
   @Override
   protected String createSessionTableSql() {
-    return "create table " + structure.tableName + " (" +
-      "  " + structure.id + " varchar2(50) not null," +
-      "  " + structure.token + " varchar2(50)," +
-      "  " + structure.sessionData + " blob," +
-      "  " + structure.insertedAt + " timestamp default current_timestamp not null ," +
-      "  " + structure.lastTouchedAt + " timestamp default current_timestamp not null," +
-      "  primary key(" + structure.id + ")" +
+    return "create table " + names.tableName + " (" +
+      "  " + names.id + " varchar2(50) not null," +
+      "  " + names.token + " varchar2(50)," +
+      "  " + names.sessionData + " blob," +
+      "  " + names.insertedAt + " timestamp default current_timestamp not null ," +
+      "  " + names.lastTouchedAt + " timestamp default current_timestamp not null," +
+      "  primary key(" + names.id + ")" +
       ")";
   }
 
@@ -48,20 +48,20 @@ class SessionStorageOracleAdapter extends AbstractSessionStorageAdapter implemen
   @Override
   protected String loadLastTouchedAtSql(List<Object> sqlParams, String sessionId) {
     sqlParams.add(sessionId);
-    return "select " + structure.lastTouchedAt + " from " + structure.tableName + " where " + structure.id + " = ?";
+    return "select " + names.lastTouchedAt + " from " + names.tableName + " where " + names.id + " = ?";
   }
 
   @Override
   protected String zeroSessionAgeSql(List<Object> sqlParams, String sessionId) {
     sqlParams.add(sessionId);
-    return "update " + structure.tableName
-      + " set " + structure.lastTouchedAt + " = current_timestamp" +
-      " where " + structure.id + " = ?";
+    return "update " + names.tableName
+      + " set " + names.lastTouchedAt + " = current_timestamp" +
+      " where " + names.id + " = ?";
   }
 
   @Override
   protected String removeSessionsOlderThanSql(List<Object> sqlParams, int ageInHours) {
-    return "delete from " + structure.tableName + " where " + structure.lastTouchedAt
+    return "delete from " + names.tableName + " where " + names.lastTouchedAt
       + " < current_timestamp - interval '" + ageInHours + "' hour";
   }
 }

@@ -17,16 +17,16 @@ import static java.util.Collections.singletonList;
 
 public abstract class AbstractSessionStorageAdapter implements SessionStorage {
 
-  protected final SessionStorageBuilder.Structure structure;
+  protected final SessionStorageBuilder.Names names;
 
-  public AbstractSessionStorageAdapter(SessionStorageBuilder.Structure structure) {
-    this.structure = structure;
+  public AbstractSessionStorageAdapter(SessionStorageBuilder.Names names) {
+    this.names = names;
     init();
   }
 
   private void init() {
     try {
-      structure.jdbc.execute(new SelectStrOrNull(checkTableExistsSql()));
+      names.jdbc.execute(new SelectStrOrNull(checkTableExistsSql()));
     } catch (RuntimeException e) {
       if (e.getCause() instanceof SQLException) {
         SQLException sqlException = (SQLException) e.getCause();
@@ -41,7 +41,7 @@ public abstract class AbstractSessionStorageAdapter implements SessionStorage {
   }
 
   private void createSessionTable() {
-    structure.jdbc.execute(new Update(createSessionTableSql()));
+    names.jdbc.execute(new Update(createSessionTableSql()));
   }
 
   protected abstract String createSessionTableSql();
@@ -56,14 +56,14 @@ public abstract class AbstractSessionStorageAdapter implements SessionStorage {
   public void insertSession(SessionIdentity identity, Object sessionData) {
     List<Object> sqlParams = new ArrayList<>();
     String sql = insertSessionSql(sqlParams, identity, sessionData);
-    structure.jdbc.execute(new Update(sql, sqlParams));
+    names.jdbc.execute(new Update(sql, sqlParams));
   }
 
   @Override
   public boolean zeroSessionAge(String sessionId) {
     List<Object> sqlParams = new ArrayList<>();
     String sql = zeroSessionAgeSql(sqlParams, sessionId);
-    return structure.jdbc.execute(new Update(sql, sqlParams)) > 0;
+    return names.jdbc.execute(new Update(sql, sqlParams)) > 0;
   }
 
   protected abstract String zeroSessionAgeSql(List<Object> sqlParams, String sessionId);
@@ -72,7 +72,7 @@ public abstract class AbstractSessionStorageAdapter implements SessionStorage {
   public Date loadLastTouchedAt(String sessionId) {
     List<Object> sqlParams = new ArrayList<>();
     String sql = loadLastTouchedAtSql(sqlParams, sessionId);
-    return structure.jdbc.execute(new SelectDateOrNull(sql, sqlParams));
+    return names.jdbc.execute(new SelectDateOrNull(sql, sqlParams));
   }
 
   protected abstract String loadLastTouchedAtSql(List<Object> sqlParams, String sessionId);
@@ -81,7 +81,7 @@ public abstract class AbstractSessionStorageAdapter implements SessionStorage {
   public int removeSessionsOlderThan(int ageInHours) {
     List<Object> sqlParams = new ArrayList<>();
     String sql = removeSessionsOlderThanSql(sqlParams, ageInHours);
-    return structure.jdbc.execute(new Update(sql, sqlParams));
+    return names.jdbc.execute(new Update(sql, sqlParams));
   }
 
   protected abstract String removeSessionsOlderThanSql(List<Object> sqlParams, int ageInHours);
@@ -89,14 +89,14 @@ public abstract class AbstractSessionStorageAdapter implements SessionStorage {
   @Override
   public SessionRow loadSession(String sessionId) {
 
-    String sql = "select * from " + structure.tableName + " where " + structure.id + " = ?";
+    String sql = "select * from " + names.tableName + " where " + names.id + " = ?";
 
-    return structure.jdbc.execute(new SelectFirstOrNull<>(sql, singletonList(sessionId), rs -> {
+    return names.jdbc.execute(new SelectFirstOrNull<>(sql, singletonList(sessionId), rs -> {
 
-      String token = rs.getString(structure.token);
-      Object sessionData = Serializer.deserialize(rs.getBytes(structure.sessionData));
-      Date insertedAt = rs.getTimestamp(structure.insertedAt);
-      Date lastTouchedAt = rs.getTimestamp(structure.lastTouchedAt);
+      String token = rs.getString(names.token);
+      Object sessionData = Serializer.deserialize(rs.getBytes(names.sessionData));
+      Date insertedAt = rs.getTimestamp(names.insertedAt);
+      Date lastTouchedAt = rs.getTimestamp(names.lastTouchedAt);
 
       return new SessionRow(token, sessionData, insertedAt, lastTouchedAt);
     }));
@@ -104,18 +104,18 @@ public abstract class AbstractSessionStorageAdapter implements SessionStorage {
 
   @Override
   public boolean remove(String sessionId) {
-    String sql = "delete from " + structure.tableName + " where " + structure.id + " = ?";
-    return structure.jdbc.execute(new Update(sql, singletonList(sessionId))) > 0;
+    String sql = "delete from " + names.tableName + " where " + names.id + " = ?";
+    return names.jdbc.execute(new Update(sql, singletonList(sessionId))) > 0;
   }
 
   @Override
   public boolean setLastTouchedAt(String sessionId, Date lastTouchedAt) {
     Objects.requireNonNull(lastTouchedAt, "lastTouchedAt cannot be null");
     String sql = ""
-      + " update " + structure.tableName
-      + " set    " + structure.lastTouchedAt + " = ?"
-      + " where  " + structure.id + " = ?";
-    return structure.jdbc.execute(new Update(
+      + " update " + names.tableName
+      + " set    " + names.lastTouchedAt + " = ?"
+      + " where  " + names.id + " = ?";
+    return names.jdbc.execute(new Update(
       sql,
       asList(new Timestamp(lastTouchedAt.getTime()), sessionId))
     ) > 0;

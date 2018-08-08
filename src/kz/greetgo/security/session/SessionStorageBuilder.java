@@ -8,7 +8,7 @@ import java.util.Objects;
 public class SessionStorageBuilder {
   private DbType dbType;
 
-  static class Structure {
+  static class Names {
     Jdbc jdbc = null;
 
     String tableName = "session_storage";
@@ -20,7 +20,7 @@ public class SessionStorageBuilder {
     String lastTouchedAt = "last_touched_at";
   }
 
-  final Structure structure = new Structure();
+  final Names names = new Names();
 
   private SessionStorageBuilder() {}
 
@@ -32,49 +32,49 @@ public class SessionStorageBuilder {
     Objects.requireNonNull(dbType);
     Objects.requireNonNull(jdbc);
     this.dbType = dbType;
-    this.structure.jdbc = jdbc;
+    this.names.jdbc = jdbc;
     return this;
   }
 
   public SessionStorage build() {
     if (dbType == DbType.Postgres) {
-      return new SessionStoragePostgresAdapter(structure);
+      return new SessionStoragePostgresAdapter(names);
     }
 
     if (dbType == DbType.Oracle) {
-      return new SessionStorageOracleAdapter(structure);
+      return new SessionStorageOracleAdapter(names);
     }
 
     throw new RuntimeException("Unknown db type = " + dbType);
   }
 
   public SessionStorageBuilder setTableName(String tableName) {
-    this.structure.tableName = tableName;
+    this.names.tableName = tableName;
     return this;
   }
 
   public SessionStorageBuilder setFieldId(String id) {
-    this.structure.id = id;
+    this.names.id = id;
     return this;
   }
 
   public SessionStorageBuilder setFieldToken(String token) {
-    this.structure.token = token;
+    this.names.token = token;
     return this;
   }
 
   public SessionStorageBuilder setFieldSessionData(String sessionData) {
-    this.structure.sessionData = sessionData;
+    this.names.sessionData = sessionData;
     return this;
   }
 
   public SessionStorageBuilder setFieldInsertedAt(String insertedAt) {
-    this.structure.insertedAt = insertedAt;
+    this.names.insertedAt = insertedAt;
     return this;
   }
 
   public SessionStorageBuilder setFieldLastTouchedAt(String lastTouchedAt) {
-    this.structure.lastTouchedAt = lastTouchedAt;
+    this.names.lastTouchedAt = lastTouchedAt;
     return this;
   }
 }
