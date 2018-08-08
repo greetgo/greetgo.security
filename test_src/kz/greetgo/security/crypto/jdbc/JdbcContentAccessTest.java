@@ -30,9 +30,16 @@ public class JdbcContentAccessTest {
       "  content byTea not null" +
       ")";
 
+    final String oracleCreateTable = "create table TABLE_NAME (" +
+      "  id varchar2(50) primary key, " +
+      "  content blob not null" +
+      ")";
+
     return new Object[][]{
       {DbType.Postgres, new DbDialectPostgres(), postgresCreateTable},
       {DbType.Postgres, new DbDialectPostgres(), postgresCreateTable},
+      {DbType.Oracle, new DbDialectOracle(), oracleCreateTable},
+      {DbType.Oracle, new DbDialectOracle(), oracleCreateTable},
     };
   }
 
