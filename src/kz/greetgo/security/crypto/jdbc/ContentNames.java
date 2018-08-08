@@ -2,14 +2,14 @@ package kz.greetgo.security.crypto.jdbc;
 
 public class ContentNames {
   public final String tableName;
-  public final String keyField;
-  public final String keyValue;
-  public final String valueField;
+  public final String idFieldName;
+  public final String idValue;
+  public final String valueFieldName;
 
-  public ContentNames(String tableName, String keyField, String keyValue, String valueField) {
+  public ContentNames(String tableName, String idFieldName, String idValue, String valueFieldName) {
     this.tableName = tableName;
-    this.keyField = keyField;
-    this.keyValue = keyValue;
-    this.valueField = valueField;
+    this.idFieldName = idFieldName;
+    this.idValue = idValue;
+    this.valueFieldName = valueFieldName;
   }
 }

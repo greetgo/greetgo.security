@@ -36,7 +36,7 @@ public class SessionStorageTest {
 
   @BeforeMethod
   public void createJdbcFactory() {
-    jdbcFactory.defineDbNameFrom("session_storage");
+    jdbcFactory.defineDbNameFrom("greetgo_security");
   }
 
   @DataProvider

@@ -26,16 +26,11 @@ public class CryptoBuilderKeysInFiles {
   }
 
   /**
-   * Builds
+   * Target builder method - builds a new crypto
    *
    * @return built object
    */
   public Crypto build() {
-    return new CryptoBridge(new CryptoSourceImpl(
-      parent.cryptoSourceConfig,
-      new FileContentAccess(privateKeyFile),
-      new FileContentAccess(publicKeyFile),
-      parent.keySize
-    ));
+    return parent.build(new FileContentAccess(privateKeyFile), new FileContentAccess(publicKeyFile));
   }
 }

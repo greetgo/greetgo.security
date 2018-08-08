@@ -25,9 +25,9 @@ public class JdbcContentAccess implements ContentAccess {
   @Override
   public byte[] downloadBytes() {
     return jdbc.execute(con -> {
-      String sql = "select " + names.valueField + " from " + names.tableName + " where " + names.keyField + " = ?";
+      String sql = "select " + names.valueFieldName + " from " + names.tableName + " where " + names.idFieldName + " = ?";
       try (PreparedStatement ps = con.prepareStatement(sql)) {
-        ps.setString(1, names.keyValue);
+        ps.setString(1, names.idValue);
         try (ResultSet rs = ps.executeQuery()) {
           if (!rs.next()) {
             return null;
@@ -75,9 +75,9 @@ public class JdbcContentAccess implements ContentAccess {
   }
 
   private void delete(Connection con) throws SQLException {
-    String sql = "delete from " + names.tableName + " where " + names.keyField + " = ?";
+    String sql = "delete from " + names.tableName + " where " + names.idFieldName + " = ?";
     try (PreparedStatement ps = con.prepareStatement(sql)) {
-      ps.setString(1, names.keyValue);
+      ps.setString(1, names.idValue);
       ps.executeUpdate();
     }
   }
@@ -89,18 +89,18 @@ public class JdbcContentAccess implements ContentAccess {
   }
 
   private int update(Connection con, byte[] bytes) throws SQLException {
-    String sql = "update " + names.tableName + " set " + names.valueField + " = ? where " + names.keyField + " = ?";
+    String sql = "update " + names.tableName + " set " + names.valueFieldName + " = ? where " + names.idFieldName + " = ?";
     try (PreparedStatement ps = con.prepareStatement(sql)) {
       ps.setBytes(1, bytes);
-      ps.setString(2, names.keyValue);
+      ps.setString(2, names.idValue);
       return ps.executeUpdate();
     }
   }
 
   private void insert(Connection con, byte[] bytes) throws SQLException {
-    String sql = "insert into " + names.tableName + " (" + names.keyField + ", " + names.valueField + ") values (?, ?)";
+    String sql = "insert into " + names.tableName + " (" + names.idFieldName + ", " + names.valueFieldName + ") values (?, ?)";
     try (PreparedStatement ps = con.prepareStatement(sql)) {
-      ps.setString(1, names.keyValue);
+      ps.setString(1, names.idValue);
       ps.setBytes(2, bytes);
       ps.executeUpdate();
     }
@@ -122,9 +122,9 @@ public class JdbcContentAccess implements ContentAccess {
   }
 
   private Boolean checkExists(Connection con) throws SQLException {
-    String sql = "select count(1) from " + names.tableName + " where " + names.keyField + " = ?";
+    String sql = "select count(1) from " + names.tableName + " where " + names.idFieldName + " = ?";
     try (PreparedStatement ps = con.prepareStatement(sql)) {
-      ps.setString(1, names.keyValue);
+      ps.setString(1, names.idValue);
       try (ResultSet rs = ps.executeQuery()) {
         if (!rs.next()) throw new RuntimeException("FATAL ERROR");
         return rs.getInt(1) > 0;

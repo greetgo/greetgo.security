@@ -1,6 +1,10 @@
 package kz.greetgo.security.crypto;
 
+import kz.greetgo.db.DbType;
+import kz.greetgo.db.Jdbc;
+
 import java.io.File;
+import java.util.Objects;
 
 public class CryptoBuilder {
   CryptoBuilder() {}
@@ -41,6 +45,7 @@ public class CryptoBuilder {
    * @param cryptoSourceConfig config for crypto source
    * @return reference to this builder
    */
+  @SuppressWarnings("UnusedReturnValue")
   public CryptoBuilder setConfig(CryptoSourceConfig cryptoSourceConfig) {
     this.cryptoSourceConfig = cryptoSourceConfig;
     return this;
@@ -54,6 +59,14 @@ public class CryptoBuilder {
    * @return built object
    */
   public Crypto build(ContentAccess privateKeyAccess, ContentAccess publicKeyAccess) {
+    Objects.requireNonNull(privateKeyAccess);
+    Objects.requireNonNull(publicKeyAccess);
     return new CryptoBridge(new CryptoSourceImpl(cryptoSourceConfig, privateKeyAccess, publicKeyAccess, keySize));
+  }
+
+  public CryptoBuilderKeysInDb inDb(DbType dbType, Jdbc jdbc) {
+    Objects.requireNonNull(dbType);
+    Objects.requireNonNull(jdbc);
+    return new CryptoBuilderKeysInDb(this, dbType, jdbc);
   }
 }
