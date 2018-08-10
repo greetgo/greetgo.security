@@ -18,7 +18,7 @@ public class SecurityBuilders {
     return CryptoBuilder.newBuilder();
   }
 
-  public static PasswordEncoderBuilder newPasswordVerifierBuilder() {
+  public static PasswordEncoderBuilder newPasswordEncoderBuilder() {
     return PasswordEncoderBuilder.newBuilder();
   }
 }
