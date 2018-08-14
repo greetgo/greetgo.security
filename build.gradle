@@ -1,5 +1,6 @@
 plugins {
   id "org.ajoberstar.grgit" version "2.3.0"
+  id "kz.greetgo.upload-to-maven" version "0.0.5"
 }
 
 def ggRepo = System.getenv('GG_REPO')
@@ -93,5 +94,18 @@ jar {
     attributes 'Implementation-Version': grgit ? grgit.head().id : "unknown"
     attributes 'Created-By': System.getProperty("user.name")
     attributes 'Created-At': new Date().format("yyyy-MM-dd/HH:mm:ss")
+  }
+}
+
+uploadToMavenCentral {
+  description = 'Security infrastructure used in greetgo!'
+  url = 'https://github.com/greetgo/greetgo.security'
+  scm {
+    url = 'https://github.com/greetgo/greetgo.security.git'
+  }
+  developer {
+    id = 'pompei'
+    name = 'Evgenij Kolpakov'
+    email = 'ekolpakov@greet-go.kz'
   }
 }
