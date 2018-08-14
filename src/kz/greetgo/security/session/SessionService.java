@@ -21,7 +21,7 @@ public interface SessionService {
    * @param sessionId session id
    * @return session data or null if session with specified id is absent
    */
-  Object getSessionData(String sessionId);
+  <T> T getSessionData(String sessionId);
 
   /**
    * Verifies session id salt. Very quick operation

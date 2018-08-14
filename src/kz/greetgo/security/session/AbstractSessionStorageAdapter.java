@@ -15,6 +15,7 @@ import java.util.Objects;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static kz.greetgo.security.util.ErrorUtil.extractSqlException;
 
 public abstract class AbstractSessionStorageAdapter implements SessionStorage {
 
@@ -29,8 +30,8 @@ public abstract class AbstractSessionStorageAdapter implements SessionStorage {
     try {
       names.jdbc.execute(new SelectStrOrNull(checkTableExistsSql()));
     } catch (RuntimeException e) {
-      if (e.getCause() instanceof SQLException) {
-        SQLException sqlException = (SQLException) e.getCause();
+      SQLException sqlException = extractSqlException(e);
+      if (sqlException != null) {
         if (isExceptionAboutTableDoesNotExists(sqlException)) {
           createSessionTable();
           return;
