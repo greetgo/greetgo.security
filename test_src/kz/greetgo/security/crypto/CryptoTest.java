@@ -6,6 +6,7 @@ import kz.greetgo.security.crypto.errors.NotEqualsIdFieldLengths;
 import kz.greetgo.security.crypto.errors.NotSameIdFieldNames;
 import kz.greetgo.security.crypto.errors.UnsupportedDb;
 import kz.greetgo.security.factory.JdbcFactory;
+import kz.greetgo.security.factory.OracleFactory;
 import kz.greetgo.security.util.SkipListener;
 import kz.greetgo.util.RND;
 import org.testng.annotations.DataProvider;
@@ -14,7 +15,9 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static kz.greetgo.security.SecurityBuilders.newCryptoBuilder;
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -123,21 +126,28 @@ public class CryptoTest {
 
   @DataProvider
   Object[][] mainDataProvider() {
-    return new Object[][]{
-      {cryptoSourceInFiles(1024), 10_000},
-      {cryptoSourceInFiles(1024), 20},
-      {cryptoSourceInFiles(1024 * 2), 10_000},
-      {cryptoSourceInFiles(1024 * 2), 20},
+    List<Object[]> list = new ArrayList<>();
+    list.add(new Object[]{cryptoSourceInFiles(1024), 10_000});
+    list.add(new Object[]{cryptoSourceInFiles(1024), 20});
+    list.add(new Object[]{cryptoSourceInFiles(1024 * 2), 10_000});
+    list.add(new Object[]{cryptoSourceInFiles(1024 * 2), 20});
 
-      {onDbInSameTable(DbType.Postgres, 1024), 20},
-      {onDbInSameTable(DbType.Oracle, 1024 * 2), 20},
+    list.add(new Object[]{onDbInSameTable(DbType.Postgres, 1024), 20});
+    if (OracleFactory.hasOracleDriver()) {
+      list.add(new Object[]{onDbInSameTable(DbType.Oracle, 1024 * 2), 20});
+    }
 
-      {onDbInSameTableDiffContent(DbType.Postgres, 1024), 20},
-      {onDbInSameTableDiffContent(DbType.Oracle, 1024 * 2), 20},
+    list.add(new Object[]{onDbInSameTableDiffContent(DbType.Postgres, 1024), 20});
+    if (OracleFactory.hasOracleDriver()) {
+      list.add(new Object[]{onDbInSameTableDiffContent(DbType.Oracle, 1024 * 2), 20});
+    }
 
-      {onDbInDifferentTables(DbType.Postgres, 1024), 20},
-      {onDbInDifferentTables(DbType.Oracle, 1024 * 2), 20},
-    };
+    list.add(new Object[]{onDbInDifferentTables(DbType.Postgres, 1024), 20});
+    if (OracleFactory.hasOracleDriver()) {
+      list.add(new Object[]{onDbInDifferentTables(DbType.Oracle, 1024 * 2), 20});
+    }
+
+    return list.toArray(new Object[list.size()][]);
   }
 
   @Test(dataProvider = "mainDataProvider")

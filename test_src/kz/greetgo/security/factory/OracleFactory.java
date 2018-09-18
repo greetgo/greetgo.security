@@ -11,11 +11,16 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static kz.greetgo.conf.sys_params.SysParams.*;
+import static kz.greetgo.conf.sys_params.SysParams.oracleAdminHost;
+import static kz.greetgo.conf.sys_params.SysParams.oracleAdminPassword;
+import static kz.greetgo.conf.sys_params.SysParams.oracleAdminPort;
+import static kz.greetgo.conf.sys_params.SysParams.oracleAdminSid;
+import static kz.greetgo.conf.sys_params.SysParams.oracleAdminUserid;
 import static org.fest.assertions.api.Assertions.assertThat;
 
-class OracleFactory {
+public class OracleFactory {
   public String username;
   private final String password = "111";
 
@@ -112,7 +117,6 @@ class OracleFactory {
     }
   }
 
-
   public static Connection getOracleAdminConnection() throws ClassNotFoundException, SQLException {
     Class.forName("oracle.jdbc.driver.OracleDriver");
     return DriverManager.getConnection(url(), oracleAdminUserid(), oracleAdminPassword());
@@ -125,5 +129,27 @@ class OracleFactory {
   private Connection getUserConnection() throws ClassNotFoundException, SQLException {
     Class.forName("oracle.jdbc.driver.OracleDriver");
     return DriverManager.getConnection(url(), username, password);
+  }
+
+  private static AtomicReference<Boolean> hasOracleDriverCache = new AtomicReference<>(null);
+
+  public static boolean hasOracleDriver() {
+    {
+      Boolean cachedValue = hasOracleDriverCache.get();
+      if (cachedValue != null) {
+        return cachedValue;
+      }
+    }
+
+    try {
+
+      Class.forName("oracle.jdbc.driver.OracleDriver");
+      hasOracleDriverCache.set(true);
+      return true;
+
+    } catch (ClassNotFoundException e) {
+      hasOracleDriverCache.set(false);
+      return false;
+    }
   }
 }
