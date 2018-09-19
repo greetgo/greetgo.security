@@ -28,6 +28,8 @@ dependencies {
   compileOnly "kz.greetgo.db:greetgo.db:$greetgoDbVersion"
   testCompile "kz.greetgo.db:greetgo.db:$greetgoDbVersion"
 
+  compileOnly 'org.mongodb:mongo-java-driver:3.8.1'
+
   testCompile "kz.greetgo.conf:greetgo.sys_params:1.0.2"
   testCompile "kz.greetgo:greetgo.util:2.0.0"
 

@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 class SessionStoragePostgresAdapter extends AbstractSessionStorageAdapter implements SessionStorage {
-  SessionStoragePostgresAdapter(SessionStorageBuilder.Names names) {
+  SessionStoragePostgresAdapter(SessionStorageJdbcBuilder.Names names) {
     super(names);
   }
 

@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 class SessionStorageOracleAdapter extends AbstractSessionStorageAdapter implements SessionStorage {
-  SessionStorageOracleAdapter(SessionStorageBuilder.Names names) {
+  SessionStorageOracleAdapter(SessionStorageJdbcBuilder.Names names) {
     super(names);
   }
 

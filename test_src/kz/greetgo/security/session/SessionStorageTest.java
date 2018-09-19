@@ -4,6 +4,7 @@ import kz.greetgo.db.DbType;
 import kz.greetgo.db.Jdbc;
 import kz.greetgo.security.SecurityBuilders;
 import kz.greetgo.security.factory.JdbcFactory;
+import kz.greetgo.security.factory.OracleFactory;
 import kz.greetgo.security.jdbc.SelectBytesField;
 import kz.greetgo.security.jdbc.SelectDateField;
 import kz.greetgo.security.jdbc.SelectNow;
@@ -19,9 +20,11 @@ import org.testng.annotations.Test;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -37,6 +40,12 @@ public class SessionStorageTest {
     return calendar.getTime();
   }
 
+  public static Date nowAddHours(int hours) {
+    Calendar calendar = new GregorianCalendar();
+    calendar.add(Calendar.HOUR, hours);
+    return calendar.getTime();
+  }
+
   @BeforeMethod
   public void createJdbcFactory() {
     jdbcFactory.defineDbNameFrom("greetgo_security");
@@ -44,10 +53,18 @@ public class SessionStorageTest {
 
   @DataProvider
   private Object[][] dbTypeDataProvider() {
-    return new Object[][]{
-      {DbType.Postgres}, {DbType.Postgres},
-      {DbType.Oracle}, {DbType.Oracle},
-    };
+
+    List<Object[]> list = new ArrayList<>();
+
+    list.add(new Object[]{DbType.Postgres});
+    list.add(new Object[]{DbType.Postgres});
+
+    if (OracleFactory.hasOracleDriver()) {
+      list.add(new Object[]{DbType.Oracle});
+      list.add(new Object[]{DbType.Oracle});
+    }
+
+    return list.toArray(new Object[list.size()][]);
   }
 
   public static class TestSessionData implements Serializable {
@@ -70,7 +87,6 @@ public class SessionStorageTest {
       .setFieldInsertedAt("ins_at")
       .setFieldLastTouchedAt("touched_at")
       .build();
-
 
     SessionIdentity identity = new SessionIdentity(RND.intStr(15), RND.str(10));
 
@@ -97,21 +113,47 @@ public class SessionStorageTest {
     assertThat(actualSessionData.role).isEqualTo(sessionData.role);
   }
 
-  @Test(dataProvider = "dbTypeDataProvider")
-  public void loadSessionData(DbType dbType) {
+  @DataProvider
+  public Object[][] sessionStorageDataProvider() {
+    List<Object[]> list = new ArrayList<>();
+
+    jdbcFactory.defineDbNameFrom("greetgo_security");
+
+    addJdbcBuilder(list, DbType.Postgres);
+    addJdbcBuilder(list, DbType.Postgres);
+
+    if (OracleFactory.hasOracleDriver()) {
+      addJdbcBuilder(list, DbType.Oracle);
+      addJdbcBuilder(list, DbType.Oracle);
+    }
+
+    return list.toArray(new Object[list.size()][]);
+  }
+
+  private void addJdbcBuilder(List<Object[]> list, DbType dbType) {
     jdbcFactory.dbType = dbType;
     Jdbc jdbc = jdbcFactory.create();
+    list.add(new Object[]{
+      SecurityBuilders.newSessionStorageBuilder()
+        .setJdbc(jdbcFactory.dbType, jdbc)
+        .build()
+    });
+  }
 
-    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
-      .setJdbc(dbType, jdbc)
-      .build();
+  @Test(dataProvider = "sessionStorageDataProvider")
+  public void insertSession_loadSessionData(SessionStorage sessionStorage) {
 
     SessionIdentity identity = new SessionIdentity(RND.intStr(15), RND.str(10));
 
     TestSessionData sessionData = new TestSessionData();
     sessionData.userId = RND.str(10);
     sessionData.role = RND.str(10);
+
+    //
+    //
     sessionStorage.insertSession(identity, sessionData);
+    //
+    //
 
     //
     //
@@ -127,14 +169,8 @@ public class SessionStorageTest {
     assertThat(actual.lastTouchedAt).isNotNull();
   }
 
-  @Test(dataProvider = "dbTypeDataProvider")
-  public void loadSessionData_sessionData_null(DbType dbType) {
-    jdbcFactory.dbType = dbType;
-    Jdbc jdbc = jdbcFactory.create();
-
-    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
-      .setJdbc(dbType, jdbc)
-      .build();
+  @Test(dataProvider = "sessionStorageDataProvider")
+  public void loadSessionData_sessionData_null(SessionStorage sessionStorage) {
 
     SessionIdentity identity = new SessionIdentity(RND.intStr(15), RND.str(10));
 
@@ -149,14 +185,8 @@ public class SessionStorageTest {
     assertThat(row.sessionData).isNull();
   }
 
-  @Test(dataProvider = "dbTypeDataProvider")
-  public void loadSessionData_token_null(DbType dbType) {
-    jdbcFactory.dbType = dbType;
-    Jdbc jdbc = jdbcFactory.create();
-
-    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
-      .setJdbc(dbType, jdbc)
-      .build();
+  @Test(dataProvider = "sessionStorageDataProvider")
+  public void loadSessionData_token_null(SessionStorage sessionStorage) {
 
     SessionIdentity identity = new SessionIdentity(RND.intStr(15), null);
 
@@ -204,6 +234,22 @@ public class SessionStorageTest {
 
   }
 
+  @Test(dataProvider = "sessionStorageDataProvider")
+  public void loadLastTouchedAt_notNull(SessionStorage sessionStorage) {
+
+    SessionIdentity identity = new SessionIdentity(RND.intStr(15), null);
+
+    sessionStorage.insertSession(identity, null);
+
+    //
+    //
+    Date lastTouchedAt = sessionStorage.loadLastTouchedAt(identity.id);
+    //
+    //
+
+    assertThat(lastTouchedAt).isNotNull();
+  }
+
   @Test(dataProvider = "dbTypeDataProvider")
   public void zeroSessionAge(DbType dbType) {
     jdbcFactory.dbType = dbType;
@@ -231,20 +277,36 @@ public class SessionStorageTest {
     assertThat(actual).isAfter(nowAddHours(jdbc, -1));
   }
 
+  @Test(dataProvider = "sessionStorageDataProvider")
+  public void zeroSessionAge_all(SessionStorage sessionStorage) {
+
+    SessionIdentity identity = new SessionIdentity(RND.intStr(15), null);
+
+    sessionStorage.insertSession(identity, null);
+
+    sessionStorage.setLastTouchedAt(identity.id, nowAddHours(-5));
+
+    //
+    //
+    boolean updated = sessionStorage.zeroSessionAge(identity.id);
+    //
+    //
+
+    assertThat(updated).isTrue();
+
+    Date actual = sessionStorage.loadLastTouchedAt(identity.id);
+
+    assertThat(actual).isAfter(nowAddHours(-1));
+  }
+
   private SessionIdentity insertSession(SessionStorage sessionStorage) {
     SessionIdentity identity = new SessionIdentity(RND.intStr(15), null);
     sessionStorage.insertSession(identity, null);
     return identity;
   }
 
-  @Test(dataProvider = "dbTypeDataProvider")
-  public void zeroSessionAge_leftSessionId(DbType dbType) {
-    jdbcFactory.dbType = dbType;
-    Jdbc jdbc = jdbcFactory.create();
-
-    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
-      .setJdbc(dbType, jdbc)
-      .build();
+  @Test(dataProvider = "sessionStorageDataProvider")
+  public void zeroSessionAge_leftSessionId(SessionStorage sessionStorage) {
 
     //
     //

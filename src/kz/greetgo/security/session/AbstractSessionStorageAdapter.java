@@ -19,9 +19,9 @@ import static kz.greetgo.security.util.ErrorUtil.extractSqlException;
 
 public abstract class AbstractSessionStorageAdapter implements SessionStorage {
 
-  protected final SessionStorageBuilder.Names names;
+  protected final SessionStorageJdbcBuilder.Names names;
 
-  public AbstractSessionStorageAdapter(SessionStorageBuilder.Names names) {
+  public AbstractSessionStorageAdapter(SessionStorageJdbcBuilder.Names names) {
     this.names = names;
     init();
   }

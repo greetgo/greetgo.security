@@ -11,14 +11,14 @@ public class SkipListener extends ITestListenerAbstract {
 
   @Override
   public void onTestFailure(ITestResult result) {
-    if (noOraDriver(result)) return;
-    if (noPostgresAdminEnv(result)) return;
+    if (noOraDriver(result)) { return; }
+    if (noPostgresAdminEnv(result)) { return; }
   }
 
   private boolean noPostgresAdminEnv(ITestResult result) {
-    if (!isPostgresEnvError(result.getThrowable())) return false;
+    if (!isPostgresEnvError(result.getThrowable())) { return false; }
     result.setStatus(ITestResult.SKIP);
-    if (printedNoPgEnvAccess) return true;
+    if (printedNoPgEnvAccess) { return true; }
     printedNoPgEnvAccess = true;
 
     printNote("" +
@@ -37,9 +37,15 @@ public class SkipListener extends ITestListenerAbstract {
   }
 
   private boolean isPostgresEnvError(Throwable error) {
-    if (error instanceof LeftPostgresJdbcUrl) return true;
-    if (error.getCause() instanceof LeftPostgresJdbcUrl) return true;
-    if (error.getCause().getCause() instanceof LeftPostgresJdbcUrl) return true;
+    if (error instanceof LeftPostgresJdbcUrl) {
+      return true;
+    }
+    if (error.getCause() instanceof LeftPostgresJdbcUrl) {
+      return true;
+    }
+    if (error.getCause() != null && error.getCause().getCause() instanceof LeftPostgresJdbcUrl) {
+      return true;
+    }
 
     {
       SqlWrapper sqlWrapper = extractSqlWrapper(error);
@@ -57,17 +63,23 @@ public class SkipListener extends ITestListenerAbstract {
   }
 
   private SqlWrapper extractSqlWrapper(Throwable error) {
-    if (error instanceof SqlWrapper) return (SqlWrapper) error;
-    if (error.getCause() instanceof SqlWrapper) return (SqlWrapper) error.getCause();
-    if (error.getCause().getCause() instanceof SqlWrapper) return (SqlWrapper) error.getCause().getCause();
+    if (error instanceof SqlWrapper) {
+      return (SqlWrapper) error;
+    }
+    if (error.getCause() instanceof SqlWrapper) {
+      return (SqlWrapper) error.getCause();
+    }
+    if (error.getCause() != null && error.getCause().getCause() instanceof SqlWrapper) {
+      return (SqlWrapper) error.getCause().getCause();
+    }
     return null;
   }
 
   private boolean noOraDriver(ITestResult result) {
     String notFoundClass = getNotFoundClass(result.getThrowable());
-    if (!"oracle.jdbc.driver.OracleDriver".equals(notFoundClass)) return false;
+    if (!"oracle.jdbc.driver.OracleDriver".equals(notFoundClass)) { return false; }
     result.setStatus(ITestResult.SKIP);
-    if (printedNoOraDriver) return true;
+    if (printedNoOraDriver) { return true; }
     printedNoOraDriver = true;
 
     String pd = System.getProperty("PROJECT_DIR");
@@ -89,7 +101,7 @@ public class SkipListener extends ITestListenerAbstract {
   private String getNotFoundClass(Throwable throwable) {
 
     for (int i = 0; i < 5; i++) {
-      if (throwable == null) return null;
+      if (throwable == null) { return null; }
       if (throwable instanceof ClassNotFoundException) {
         return throwable.getMessage();
       }
