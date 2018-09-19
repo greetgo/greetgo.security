@@ -19,7 +19,7 @@ public interface SessionStorage {
    * Loads sessionContents
    *
    * @param sessionId session id
-   * @return session contents
+   * @return session contents or <code>null</code> if session is absent or session has been deactivated
    */
   SessionRow loadSession(String sessionId);
 

@@ -24,11 +24,13 @@ repositories {
 
 dependencies {
   ext.greetgoDbVersion = '2.3.1'
+  ext.mongoDriverVersion = '3.8.1'
 
   compileOnly "kz.greetgo.db:greetgo.db:$greetgoDbVersion"
   testCompile "kz.greetgo.db:greetgo.db:$greetgoDbVersion"
 
-  compileOnly 'org.mongodb:mongo-java-driver:3.8.1'
+  compileOnly "org.mongodb:mongo-java-driver:$mongoDriverVersion"
+  testCompile "org.mongodb:mongo-java-driver:$mongoDriverVersion"
 
   testCompile "kz.greetgo.conf:greetgo.sys_params:1.0.2"
   testCompile "kz.greetgo:greetgo.util:2.0.0"

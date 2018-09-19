@@ -1,8 +1,9 @@
 package kz.greetgo.security.session;
 
-import com.mongodb.DBCollection;
+import com.mongodb.client.MongoCollection;
 import kz.greetgo.db.DbType;
 import kz.greetgo.db.Jdbc;
+import org.bson.Document;
 
 public class SessionStorageBuilder {
 
@@ -16,7 +17,7 @@ public class SessionStorageBuilder {
     return new SessionStorageJdbcBuilder(dbType, jdbc);
   }
 
-  public SessionStorageMongoBuilder setMongoCollection(DBCollection collection) {
+  public SessionStorageMongoBuilder setMongoCollection(MongoCollection<Document> collection) {
     return new SessionStorageMongoBuilder(collection);
   }
 }

@@ -3,7 +3,7 @@ package kz.greetgo.security.session;
 import java.sql.SQLException;
 import java.util.List;
 
-class SessionStoragePostgresAdapter extends AbstractSessionStorageAdapter implements SessionStorage {
+class SessionStoragePostgresAdapter extends SessionStorageAdapterAbstract implements SessionStorage {
   SessionStoragePostgresAdapter(SessionStorageJdbcBuilder.Names names) {
     super(names);
   }

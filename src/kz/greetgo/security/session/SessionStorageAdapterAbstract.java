@@ -17,11 +17,11 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static kz.greetgo.security.util.ErrorUtil.extractSqlException;
 
-public abstract class AbstractSessionStorageAdapter implements SessionStorage {
+public abstract class SessionStorageAdapterAbstract implements SessionStorage {
 
   protected final SessionStorageJdbcBuilder.Names names;
 
-  public AbstractSessionStorageAdapter(SessionStorageJdbcBuilder.Names names) {
+  public SessionStorageAdapterAbstract(SessionStorageJdbcBuilder.Names names) {
     this.names = names;
     init();
   }

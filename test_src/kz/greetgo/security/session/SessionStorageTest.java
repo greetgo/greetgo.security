@@ -1,5 +1,8 @@
 package kz.greetgo.security.session;
 
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import kz.greetgo.db.DbType;
 import kz.greetgo.db.Jdbc;
 import kz.greetgo.security.SecurityBuilders;
@@ -9,10 +12,10 @@ import kz.greetgo.security.jdbc.SelectBytesField;
 import kz.greetgo.security.jdbc.SelectDateField;
 import kz.greetgo.security.jdbc.SelectNow;
 import kz.greetgo.security.jdbc.SelectStrField;
-import kz.greetgo.security.session.jdbc.SelectIntOrNull;
 import kz.greetgo.security.session.jdbc.Update;
 import kz.greetgo.security.util.SkipListener;
 import kz.greetgo.util.RND;
+import org.bson.Document;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Listeners;
@@ -127,7 +130,22 @@ public class SessionStorageTest {
       addJdbcBuilder(list, DbType.Oracle);
     }
 
+    addMongoBuilder(list);
+    addMongoBuilder(list);
+
     return list.toArray(new Object[list.size()][]);
+  }
+
+  private void addMongoBuilder(List<Object[]> list) {
+    MongoClient mongoClient = new MongoClient();
+    MongoDatabase database = mongoClient.getDatabase(System.getProperty("user.name") + "_greetgo_security");
+    MongoCollection<Document> sessionStorage = database.getCollection("session_storage");
+
+    list.add(new Object[]{
+      SecurityBuilders.newSessionStorageBuilder()
+        .setMongoCollection(sessionStorage)
+        .build()
+    });
   }
 
   private void addJdbcBuilder(List<Object[]> list, DbType dbType) {
@@ -161,6 +179,7 @@ public class SessionStorageTest {
     //
     //
 
+    assertThat(actual).isNotNull();
     assert actual != null;
     assertThat(((TestSessionData) actual.sessionData).userId).isEqualTo(sessionData.userId);
     assertThat(((TestSessionData) actual.sessionData).role).isEqualTo(sessionData.role);
@@ -182,6 +201,7 @@ public class SessionStorageTest {
     //
     //
 
+    assertThat(row).isNotNull();
     assertThat(row.sessionData).isNull();
   }
 
@@ -198,6 +218,7 @@ public class SessionStorageTest {
     //
     //
 
+    assertThat(row).isNotNull();
     assertThat(row.token).isNull();
   }
 
@@ -300,8 +321,12 @@ public class SessionStorageTest {
   }
 
   private SessionIdentity insertSession(SessionStorage sessionStorage) {
+    return insertSession(sessionStorage, null);
+  }
+
+  private SessionIdentity insertSession(SessionStorage sessionStorage, Object sessionData) {
     SessionIdentity identity = new SessionIdentity(RND.intStr(15), null);
-    sessionStorage.insertSession(identity, null);
+    sessionStorage.insertSession(identity, sessionData);
     return identity;
   }
 
@@ -317,25 +342,21 @@ public class SessionStorageTest {
     assertThat(updated).isFalse();
   }
 
-  @Test(dataProvider = "dbTypeDataProvider")
-  public void removeSessionsOlderThan(DbType dbType) {
-    jdbcFactory.dbType = dbType;
-    Jdbc jdbc = jdbcFactory.create();
+  @Test(dataProvider = "sessionStorageDataProvider")
+  public void removeSessionsOlderThan(SessionStorage sessionStorage) {
 
-    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
-      .setJdbc(dbType, jdbc)
-      .build();
+    sessionStorage.removeSessionsOlderThan(7);
 
-    jdbc.execute(new Update("delete from session_storage"));
+    SessionIdentity s1 = insertSession(sessionStorage, "session 1");
+    SessionIdentity s2 = insertSession(sessionStorage, "session 2");
+    SessionIdentity s3 = insertSession(sessionStorage, "session 3");
 
-    insertSession(sessionStorage);
-    insertSession(sessionStorage);
-    insertSession(sessionStorage);
+    sessionStorage.setLastTouchedAt(s1.id, nowAddHours(-10));
+    sessionStorage.setLastTouchedAt(s2.id, nowAddHours(-10));
+    sessionStorage.setLastTouchedAt(s3.id, nowAddHours(-10));
 
-    setDateFieldInAllTable(jdbc, "last_touched_at", nowAddHours(jdbc, -10));
-
-    insertSession(sessionStorage);
-    insertSession(sessionStorage);
+    SessionIdentity s4 = insertSession(sessionStorage, "session 4");
+    SessionIdentity s5 = insertSession(sessionStorage, "session 5");
 
     //
     //
@@ -345,20 +366,20 @@ public class SessionStorageTest {
 
     assertThat(count).isEqualTo(3);
 
-    int leaveCount = jdbc.execute(new SelectIntOrNull("select count(1) from session_storage"));
-    assertThat(leaveCount).isEqualTo(2);
+    assertThat(sessionStorage.loadSession(s1.id)).isNull();
+    assertThat(sessionStorage.loadSession(s2.id)).isNull();
+    assertThat(sessionStorage.loadSession(s3.id)).isNull();
+
+    assertThat(sessionStorage.loadSession(s4.id).sessionData).isEqualTo("session 4");
+    assertThat(sessionStorage.loadSession(s5.id).sessionData).isEqualTo("session 5");
   }
 
-  @Test(dataProvider = "dbTypeDataProvider")
-  public void removeSession(DbType dbType) {
-    jdbcFactory.dbType = dbType;
-    Jdbc jdbc = jdbcFactory.create();
-
-    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
-      .setJdbc(dbType, jdbc)
-      .build();
+  @Test(dataProvider = "sessionStorageDataProvider")
+  public void removeSession(SessionStorage sessionStorage) {
 
     String sessionId = insertSession(sessionStorage).id;
+
+    assertThat(sessionStorage.loadSession(sessionId)).isNotNull();
 
     //
     //
@@ -368,20 +389,19 @@ public class SessionStorageTest {
 
     assertThat(removeFlag).isTrue();
 
-    int count = jdbc.execute(new SelectIntOrNull(
-      "select count(1) from session_storage where id = ?", singletonList(sessionId)
-    ));
-    assertThat(count).isZero();
+    assertThat(sessionStorage.loadSession(sessionId)).isNull();
+
+    //
+    //
+    boolean removeFlag2 = sessionStorage.remove(sessionId);
+    //
+    //
+
+    assertThat(removeFlag2).isFalse();
   }
 
-  @Test(dataProvider = "dbTypeDataProvider")
-  public void removeSession_noSession(DbType dbType) {
-    jdbcFactory.dbType = dbType;
-    Jdbc jdbc = jdbcFactory.create();
-
-    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
-      .setJdbc(dbType, jdbc)
-      .build();
+  @Test(dataProvider = "sessionStorageDataProvider")
+  public void removeSession_noSession(SessionStorage sessionStorage) {
 
     //
     //
@@ -392,53 +412,38 @@ public class SessionStorageTest {
     assertThat(removeFlag).isFalse();
   }
 
-  @Test(dataProvider = "dbTypeDataProvider")
-  public void setLastTouchedAt(DbType dbType) {
-    jdbcFactory.dbType = dbType;
-    Jdbc jdbc = jdbcFactory.create();
-
-    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
-      .setJdbc(dbType, jdbc)
-      .build();
+  @Test(dataProvider = "sessionStorageDataProvider")
+  public void setLastTouchedAt(SessionStorage sessionStorage) {
 
     String sessionId = insertSession(sessionStorage).id;
 
-    setDateFieldInAllTable(jdbc, "last_touched_at", nowAddHours(jdbc, -10));
-
     //
     //
-    boolean updateStatus = sessionStorage.setLastTouchedAt(sessionId, nowAddHours(jdbc, -5));
+    boolean updateStatus = sessionStorage.setLastTouchedAt(sessionId, nowAddHours(-5));
     //
     //
 
     assertThat(updateStatus).isTrue();
 
-    Date actualDate = jdbc.execute(new SelectDateField("last_touched_at", "session_storage", sessionId));
-    assertThat(actualDate).isAfter(nowAddHours(jdbc, -7));
+    assertThat(sessionStorage.loadSession(sessionId).lastTouchedAt).isBefore(nowAddHours(-4));
   }
 
-  @Test(dataProvider = "dbTypeDataProvider")
-  public void setLastTouchedAt_noSession(DbType dbType) {
-    jdbcFactory.dbType = dbType;
-    Jdbc jdbc = jdbcFactory.create();
-
-    SessionStorage sessionStorage = SecurityBuilders.newSessionStorageBuilder()
-      .setJdbc(dbType, jdbc)
-      .build();
+  @Test(dataProvider = "sessionStorageDataProvider")
+  public void setLastTouchedAt_noSession(SessionStorage sessionStorage) {
 
     String sessionId = insertSession(sessionStorage).id;
 
-    setDateFieldInAllTable(jdbc, "last_touched_at", nowAddHours(jdbc, -10));
+    sessionStorage.setLastTouchedAt(sessionId, nowAddHours(-10));
 
     //
     //
-    boolean updateStatus = sessionStorage.setLastTouchedAt(RND.str(10), nowAddHours(jdbc, -5));
+    boolean updateStatus = sessionStorage.setLastTouchedAt(RND.str(10), nowAddHours(-5));
     //
     //
 
     assertThat(updateStatus).isFalse();
 
-    Date actualDate = jdbc.execute(new SelectDateField("last_touched_at", "session_storage", sessionId));
-    assertThat(actualDate).isBefore(nowAddHours(jdbc, -7));
+    assertThat(sessionStorage.loadSession(sessionId)).isNotNull();
+    assertThat(sessionStorage.loadSession(sessionId).lastTouchedAt).isBefore(nowAddHours(-7));
   }
 }

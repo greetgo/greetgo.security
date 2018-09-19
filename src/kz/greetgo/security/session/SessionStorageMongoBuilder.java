@@ -1,16 +1,16 @@
 package kz.greetgo.security.session;
 
-import com.mongodb.DBCollection;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import com.mongodb.client.MongoCollection;
+import org.bson.Document;
 
 public class SessionStorageMongoBuilder {
-  private final DBCollection collection;
+  private final MongoCollection<Document> collection;
 
-  public SessionStorageMongoBuilder(DBCollection collection) {
+  public SessionStorageMongoBuilder(MongoCollection<Document> collection) {
     this.collection = collection;
   }
 
   public SessionStorage build() {
-    throw new NotImplementedException();
+    return new SessionStorageMongo(collection);
   }
 }

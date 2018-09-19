@@ -1,6 +1,5 @@
 package kz.greetgo.security.session;
 
-import kz.greetgo.security.session.Serializer;
 import kz.greetgo.util.RND;
 import org.testng.annotations.Test;
 
@@ -60,6 +59,55 @@ public class SerializerTest {
     //
     //
     TestObject o2 = Serializer.deserialize(bytes);
+    //
+    //
+
+    assertThat(o2).isNull();
+  }
+
+  @Test
+  public void serializeToStr_deserializeFromStr() {
+    TestObject o1 = new TestObject();
+    o1.dateField = RND.dateYears(-100, 10);
+    o1.intField = RND.plusInt(10_000_000);
+    o1.strField = RND.str(10);
+
+    //
+    //
+    String serializedStr = Serializer.serializeToStr(o1);
+    //
+    //
+
+    assertThat(serializedStr).isNotNull();
+    assertThat(serializedStr).isNotEmpty();
+
+    //
+    //
+    TestObject o2 = Serializer.deserializeFromStr(serializedStr);
+    //
+    //
+
+    assertThat(o2).isNotNull();
+    //noinspection ConstantConditions
+    assertThat(o2.dateField).isEqualTo(o1.dateField);
+    assertThat(o2.intField).isEqualTo(o1.intField);
+    assertThat(o2.strField).isEqualTo(o1.strField);
+  }
+
+  @Test
+  public void serializeToStr_deserializeFromStr_null() {
+
+    //
+    //
+    String serializedStr = Serializer.serializeToStr(null);
+    //
+    //
+
+    assertThat(serializedStr).isNotNull();
+
+    //
+    //
+    TestObject o2 = Serializer.deserializeFromStr(serializedStr);
     //
     //
 
