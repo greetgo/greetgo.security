@@ -1,7 +1,9 @@
 package kz.greetgo.security.crypto;
 
+import com.mongodb.client.MongoCollection;
 import kz.greetgo.db.DbType;
 import kz.greetgo.db.Jdbc;
+import org.bson.Document;
 
 import java.io.File;
 import java.util.Objects;
@@ -68,5 +70,10 @@ public class CryptoBuilder {
     Objects.requireNonNull(dbType);
     Objects.requireNonNull(jdbc);
     return new CryptoBuilderKeysInDb(this, dbType, jdbc);
+  }
+
+  public CryptoBuilderKeysInMongo inMongo(MongoCollection<Document> collection) {
+    Objects.requireNonNull(collection);
+    return new CryptoBuilderKeysInMongo(this, collection);
   }
 }

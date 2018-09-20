@@ -10,5 +10,5 @@ public interface DbDialect {
 
   boolean isRecordAlreadyExists(SQLException e);
 
-  String toCreateTableDDL(CreateTable createTable);
+  String generateCreateTableDDL(CreateTable createTable);
 }

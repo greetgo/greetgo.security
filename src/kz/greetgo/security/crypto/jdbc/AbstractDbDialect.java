@@ -11,7 +11,7 @@ import static java.util.stream.Collectors.joining;
 
 public abstract class AbstractDbDialect implements DbDialect {
   @Override
-  public String toCreateTableDDL(CreateTable createTable) {
+  public String generateCreateTableDDL(CreateTable createTable) {
 
     List<String> fieldStrList = new ArrayList<>();
 

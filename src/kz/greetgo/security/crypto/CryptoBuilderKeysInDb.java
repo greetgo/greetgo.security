@@ -125,15 +125,29 @@ public class CryptoBuilderKeysInDb {
     return this;
   }
 
+  String createTableDDL_privateKey;
+  String createTableDDL_publicKey;
+
+  DbDialect dialect;
+
+  ContentNames privateKeyNames = namesForPrivateKey.fix();
+  ContentNames publicKeyNames = namesForPublicKey.fix();
+
   public Crypto build() {
-    DbDialect dialect = calcDialect();
+    dialect = calcDialect();
 
-    ContentNames privateKeyNames = namesForPrivateKey.fix();
-    ContentNames publicKeyNames = namesForPublicKey.fix();
+    prepareDDL();
 
-    final String createTableDDL_privateKey;
-    final String createTableDDL_publicKey;
+    JdbcContentAccess privateKeyAccess
+      = new JdbcContentAccess(jdbc, privateKeyNames, createTableDDL_privateKey, dialect);
 
+    JdbcContentAccess publicKeyAccess
+      = new JdbcContentAccess(jdbc, publicKeyNames, createTableDDL_publicKey, dialect);
+
+    return parent.build(privateKeyAccess, publicKeyAccess);
+  }
+
+  private void prepareDDL() {
     if (Objects.equals(privateKeyNames.tableName, publicKeyNames.tableName)) {
 
       if (!Objects.equals(privateKeyNames.idFieldName, publicKeyNames.idFieldName)) {
@@ -162,7 +176,7 @@ public class CryptoBuilderKeysInDb {
           .typeBlob();
       }
 
-      createTableDDL_privateKey = createTableDDL_publicKey = dialect.toCreateTableDDL(createTable);
+      createTableDDL_privateKey = createTableDDL_publicKey = dialect.generateCreateTableDDL(createTable);
     } else {
 
       {
@@ -176,7 +190,7 @@ public class CryptoBuilderKeysInDb {
           .typeBlob()
           .notNull();
 
-        createTableDDL_privateKey = dialect.toCreateTableDDL(createTable);
+        createTableDDL_privateKey = dialect.generateCreateTableDDL(createTable);
       }
       {
         CreateTable createTable = new CreateTable(publicKeyNames.tableName);
@@ -189,17 +203,9 @@ public class CryptoBuilderKeysInDb {
           .typeBlob()
           .notNull();
 
-        createTableDDL_publicKey = dialect.toCreateTableDDL(createTable);
+        createTableDDL_publicKey = dialect.generateCreateTableDDL(createTable);
       }
     }
-
-    JdbcContentAccess privateKeyAccess
-      = new JdbcContentAccess(jdbc, privateKeyNames, createTableDDL_privateKey, dialect);
-
-    JdbcContentAccess publicKeyAccess
-      = new JdbcContentAccess(jdbc, publicKeyNames, createTableDDL_publicKey, dialect);
-
-    return parent.build(privateKeyAccess, publicKeyAccess);
   }
 
   private DbDialect calcDialect() {

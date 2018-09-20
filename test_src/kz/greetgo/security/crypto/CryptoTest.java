@@ -1,5 +1,6 @@
 package kz.greetgo.security.crypto;
 
+import com.mongodb.client.MongoCollection;
 import kz.greetgo.db.DbType;
 import kz.greetgo.db.Jdbc;
 import kz.greetgo.security.crypto.errors.NotEqualsIdFieldLengths;
@@ -8,7 +9,10 @@ import kz.greetgo.security.crypto.errors.UnsupportedDb;
 import kz.greetgo.security.factory.JdbcFactory;
 import kz.greetgo.security.factory.OracleFactory;
 import kz.greetgo.security.util.SkipListener;
+import kz.greetgo.security.util.TestMongoUtil;
 import kz.greetgo.util.RND;
+import org.bson.Document;
+import org.testng.SkipException;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
@@ -20,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static kz.greetgo.security.SecurityBuilders.newCryptoBuilder;
+import static kz.greetgo.security.util.TestMongoUtil.connectGetCollection;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 @Listeners(SkipListener.class)
@@ -124,6 +129,34 @@ public class CryptoTest {
     };
   }
 
+  private CryptoSource onMongoInSameCollection(int keySize) {
+    return new CryptoSource() {
+
+      @Override
+      public String toString() {
+        return "SAME TABLE MONGO, keySize = " + keySize;
+      }
+
+      @Override
+      public Crypto create(String suffix) {
+
+        if (!TestMongoUtil.hasMongodb()) {
+          throw new SkipException("MongoDB cannot be accessed");
+        }
+
+        MongoCollection<Document> collection = connectGetCollection(System.getProperty("user.name") + "_crypto");
+
+        return CryptoBuilder.newBuilder()
+          .setKeySize(keySize)
+          .setConfig(new CryptoSourceConfigDefault())
+          .inMongo(collection)
+          .build()
+          ;
+
+      }
+    };
+  }
+
   @DataProvider
   Object[][] mainDataProvider() {
     List<Object[]> list = new ArrayList<>();
@@ -146,6 +179,11 @@ public class CryptoTest {
     if (OracleFactory.hasOracleDriver()) {
       list.add(new Object[]{onDbInDifferentTables(DbType.Oracle, 1024 * 2), 20});
     }
+
+    list.add(new Object[]{onMongoInSameCollection(1024), 20});
+    list.add(new Object[]{onMongoInSameCollection(1024 * 2), 20});
+    list.add(new Object[]{onMongoInSameCollection(1024), 20_000});
+    list.add(new Object[]{onMongoInSameCollection(1024 * 2), 20_000});
 
     return list.toArray(new Object[list.size()][]);
   }
