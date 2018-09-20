@@ -1,7 +1,7 @@
 
 ## Crypto
 
-Crypto using async keys (encode, decode, sign, verifySignature)
+Encode, decode, sign, verifySignature using async cryptos
 
 See interface [Crypto](https://github.com/greetgo/greetgo.security/blob/master/src/kz/greetgo/security/crypto/Crypto.java)
 
