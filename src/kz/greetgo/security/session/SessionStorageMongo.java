@@ -62,7 +62,6 @@ class SessionStorageMongo implements SessionStorage {
   public void insertSession(SessionIdentity identity, Object sessionData) {
     requireNonNull(identity, "identity");
     requireNonNull(identity.id, "identity.id");
-    requireNonNull(identity.token, "identity.token");
 
     ensureIndexId();
 
@@ -163,12 +162,40 @@ class SessionStorageMongo implements SessionStorage {
   @Override
   public boolean remove(String sessionId) {
     ensureIndexId();
-    return false;
+
+    Document values = new Document();
+    values.append(names.actual, 0);
+
+    Document update = new Document();
+    update.append("$set", values);
+
+    Bson filter = and(
+      eq(names.id, sessionId),
+      eq(names.actual, 1)
+    );
+
+    return (int) collection
+      .updateMany(filter, update)
+      .getMatchedCount() > 0;
   }
 
   @Override
   public boolean setLastTouchedAt(String sessionId, Date lastTouchedAt) {
     ensureIndexId();
-    return false;
+
+    Document values = new Document();
+    values.append(names.lastModifiedAt, lastTouchedAt);
+
+    Document update = new Document();
+    update.append("$set", values);
+
+    Bson filter = and(
+      eq(names.id, sessionId),
+      eq(names.actual, 1)
+    );
+
+    return (int) collection
+      .updateMany(filter, update)
+      .getMatchedCount() > 0;
   }
 }

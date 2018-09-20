@@ -1,8 +1,6 @@
 package kz.greetgo.security.session;
 
-import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import kz.greetgo.db.DbType;
 import kz.greetgo.db.Jdbc;
 import kz.greetgo.security.SecurityBuilders;
@@ -14,6 +12,7 @@ import kz.greetgo.security.jdbc.SelectNow;
 import kz.greetgo.security.jdbc.SelectStrField;
 import kz.greetgo.security.session.jdbc.Update;
 import kz.greetgo.security.util.SkipListener;
+import kz.greetgo.security.util.TestMongoUtil;
 import kz.greetgo.util.RND;
 import org.bson.Document;
 import org.testng.annotations.BeforeMethod;
@@ -30,6 +29,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
+import static kz.greetgo.security.util.TestMongoUtil.connectGetCollection;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 @Listeners(SkipListener.class)
@@ -130,16 +130,16 @@ public class SessionStorageTest {
       addJdbcBuilder(list, DbType.Oracle);
     }
 
-    addMongoBuilder(list);
-    addMongoBuilder(list);
+    if (TestMongoUtil.hasMongodb()) {
+      addMongoBuilder(list);
+      addMongoBuilder(list);
+    }
 
     return list.toArray(new Object[list.size()][]);
   }
 
   private void addMongoBuilder(List<Object[]> list) {
-    MongoClient mongoClient = new MongoClient();
-    MongoDatabase database = mongoClient.getDatabase(System.getProperty("user.name") + "_greetgo_security");
-    MongoCollection<Document> sessionStorage = database.getCollection("session_storage");
+    MongoCollection<Document> sessionStorage = connectGetCollection("session_storage");
 
     list.add(new Object[]{
       SecurityBuilders.newSessionStorageBuilder()
