@@ -1,8 +1,10 @@
 package kz.greetgo.security.crypto;
 
 import com.mongodb.client.MongoCollection;
+import kz.greetgo.db.AbstractJdbcWithDataSource;
 import kz.greetgo.db.DbType;
 import kz.greetgo.db.Jdbc;
+import kz.greetgo.db.TransactionManager;
 import kz.greetgo.security.crypto.errors.NotEqualsIdFieldLengths;
 import kz.greetgo.security.crypto.errors.UnsupportedDb;
 import kz.greetgo.security.factory.JdbcFactory;
@@ -16,6 +18,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.security.SecureRandom;
 import java.util.ArrayList;
