@@ -22,12 +22,13 @@ class Probe {
     
     byte[] encryptedData = crypto.encrypt(secretData);
     
+    // !!! CIA cannot decrypt encryptedData if they have no private key !!!
+    
     // and then decrypt data
     
-    byte[] originalSecretData = crypto.decrypt(encryptedData);
+    byte[] originalData = crypto.decrypt(encryptedData);
     
-    // be sure that secretData, originalSecretData contains the same bytes
-    
+    // be sure that secretData and originalData contain the same bytes
     
   }
 }
@@ -134,7 +135,6 @@ class CryptoCreatorInMongoDB {
     Crypto crypto = SecurityBuilders
       .newCryptoBuilder()
       .setKeySize(1024)
-      .setKeySize(keySize)
       .setConfig(new CryptoSourceConfigDefault())
       .inMongo(collection)
       .setPublicKeyFieldName("public_key_content")
