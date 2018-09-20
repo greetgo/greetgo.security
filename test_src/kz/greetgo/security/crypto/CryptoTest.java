@@ -4,7 +4,6 @@ import com.mongodb.client.MongoCollection;
 import kz.greetgo.db.DbType;
 import kz.greetgo.db.Jdbc;
 import kz.greetgo.security.crypto.errors.NotEqualsIdFieldLengths;
-import kz.greetgo.security.crypto.errors.NotSameIdFieldNames;
 import kz.greetgo.security.crypto.errors.UnsupportedDb;
 import kz.greetgo.security.factory.JdbcFactory;
 import kz.greetgo.security.factory.OracleFactory;
@@ -64,6 +63,10 @@ public class CryptoTest {
 
       @Override
       public Crypto create(String suffix) {
+        if (dbType == DbType.Oracle && !OracleFactory.hasOracleDriver()) {
+          throw new SkipException("No Oracle JDBC Driver");
+        }
+
         jdbcFactory.dbType = dbType;
         Jdbc jdbc = jdbcFactory.create();
 
@@ -91,6 +94,10 @@ public class CryptoTest {
 
       @Override
       public Crypto create(String suffix) {
+        if (dbType == DbType.Oracle && !OracleFactory.hasOracleDriver()) {
+          throw new SkipException("No Oracle JDBC Driver");
+        }
+
         jdbcFactory.dbType = dbType;
         Jdbc jdbc = jdbcFactory.create();
 
@@ -134,7 +141,7 @@ public class CryptoTest {
 
       @Override
       public String toString() {
-        return "SAME TABLE MONGO, keySize = " + keySize;
+        return "SAME COLLECTION MONGO, keySize = " + keySize;
       }
 
       @Override
@@ -144,15 +151,87 @@ public class CryptoTest {
           throw new SkipException("MongoDB cannot be accessed");
         }
 
-        MongoCollection<Document> collection = connectGetCollection(System.getProperty("user.name") + "_crypto");
+        MongoCollection<Document> collection = connectGetCollection("crypto_keys_" + RND.intStr(10));
 
-        return CryptoBuilder.newBuilder()
+        return CryptoBuilder
+          .newBuilder()
           .setKeySize(keySize)
           .setConfig(new CryptoSourceConfigDefault())
           .inMongo(collection)
+          .setKeysFieldName("key_content")
+          .setIdFieldName("key_id")
+          .setPrivateId("test_private_key")
+          .setPublicId("test_public_key")
           .build()
           ;
+      }
+    };
+  }
 
+  private CryptoSource onMongoInSameDocument(int keySize) {
+    return new CryptoSource() {
+
+      @Override
+      public String toString() {
+        return "SAME DOCUMENT MONGO, keySize = " + keySize;
+      }
+
+      @Override
+      public Crypto create(String suffix) {
+
+        if (!TestMongoUtil.hasMongodb()) {
+          throw new SkipException("MongoDB cannot be accessed");
+        }
+
+        MongoCollection<Document> collection = connectGetCollection("crypto_keys_same_doc_" + RND.intStr(10));
+
+        return CryptoBuilder
+          .newBuilder()
+          .setKeySize(keySize)
+          .setConfig(new CryptoSourceConfigDefault())
+          .inMongo(collection)
+          .setPublicKeyFieldName("public_key_content")
+          .setPrivateKeyFieldName("private_key_content")
+          .setIdFieldName("key_id")
+          .setPrivateId("cool_key")
+          .setPublicId("cool_key")
+          .build()
+          ;
+      }
+    };
+  }
+
+  private CryptoSource onMongoInDifferentCollections(int keySize) {
+    return new CryptoSource() {
+
+      @Override
+      public String toString() {
+        return "DIFFERENT COLLECTIONS MONGO, keySize = " + keySize;
+      }
+
+      @Override
+      public Crypto create(String suffix) {
+
+        if (!TestMongoUtil.hasMongodb()) {
+          throw new SkipException("MongoDB cannot be accessed");
+        }
+
+        String rnd = RND.intStr(10);
+
+        MongoCollection<Document> privateKey = connectGetCollection("private_crypto_keys_" + rnd);
+        MongoCollection<Document> publicKey = connectGetCollection("public_crypto_keys_" + rnd);
+
+        return CryptoBuilder
+          .newBuilder()
+          .setKeySize(keySize)
+          .setConfig(new CryptoSourceConfigDefault())
+          .inMongo(privateKey, publicKey)
+          .setKeysFieldName("key_content")
+          .setIdFieldName("key_id")
+          .setPrivateId("test_key")
+          .setPublicId("test_key")
+          .build()
+          ;
       }
     };
   }
@@ -166,24 +245,28 @@ public class CryptoTest {
     list.add(new Object[]{cryptoSourceInFiles(1024 * 2), 20});
 
     list.add(new Object[]{onDbInSameTable(DbType.Postgres, 1024), 20});
-    if (OracleFactory.hasOracleDriver()) {
-      list.add(new Object[]{onDbInSameTable(DbType.Oracle, 1024 * 2), 20});
-    }
+    list.add(new Object[]{onDbInSameTable(DbType.Oracle, 1024 * 2), 20});
 
     list.add(new Object[]{onDbInSameTableDiffContent(DbType.Postgres, 1024), 20});
-    if (OracleFactory.hasOracleDriver()) {
-      list.add(new Object[]{onDbInSameTableDiffContent(DbType.Oracle, 1024 * 2), 20});
-    }
+    list.add(new Object[]{onDbInSameTableDiffContent(DbType.Oracle, 1024 * 2), 20});
 
     list.add(new Object[]{onDbInDifferentTables(DbType.Postgres, 1024), 20});
-    if (OracleFactory.hasOracleDriver()) {
-      list.add(new Object[]{onDbInDifferentTables(DbType.Oracle, 1024 * 2), 20});
-    }
+    list.add(new Object[]{onDbInDifferentTables(DbType.Oracle, 1024 * 2), 20});
 
     list.add(new Object[]{onMongoInSameCollection(1024), 20});
     list.add(new Object[]{onMongoInSameCollection(1024 * 2), 20});
     list.add(new Object[]{onMongoInSameCollection(1024), 20_000});
     list.add(new Object[]{onMongoInSameCollection(1024 * 2), 20_000});
+
+    list.add(new Object[]{onMongoInDifferentCollections(1024), 20});
+    list.add(new Object[]{onMongoInDifferentCollections(1024 * 2), 20});
+    list.add(new Object[]{onMongoInDifferentCollections(1024), 20_000});
+    list.add(new Object[]{onMongoInDifferentCollections(1024 * 2), 20_000});
+
+    list.add(new Object[]{onMongoInSameDocument(1024), 20});
+    list.add(new Object[]{onMongoInSameDocument(1024 * 2), 20});
+    list.add(new Object[]{onMongoInSameDocument(1024), 20_000});
+    list.add(new Object[]{onMongoInSameDocument(1024 * 2), 20_000});
 
     return list.toArray(new Object[list.size()][]);
   }
@@ -261,18 +344,6 @@ public class CryptoTest {
 
       assertThat(original).describedAs("Checking when keys just restored from broken content").isEqualTo(bytes);
     }
-  }
-
-  @Test(expectedExceptions = NotSameIdFieldNames.class)
-  public void notSameIdFieldNames() {
-    jdbcFactory.dbType = DbType.Postgres;
-    Jdbc jdbc = jdbcFactory.create();
-
-    newCryptoBuilder()
-      .inDb(DbType.Postgres, jdbc)
-      .setIdFieldNameForPrivateKey("a")
-      .setIdFieldNameForPublicKey("b")
-      .build();
   }
 
   @Test(expectedExceptions = NotEqualsIdFieldLengths.class)

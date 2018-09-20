@@ -3,7 +3,6 @@ package kz.greetgo.security.crypto;
 import kz.greetgo.db.DbType;
 import kz.greetgo.db.Jdbc;
 import kz.greetgo.security.crypto.errors.NotEqualsIdFieldLengths;
-import kz.greetgo.security.crypto.errors.NotSameIdFieldNames;
 import kz.greetgo.security.crypto.errors.UnsupportedDb;
 import kz.greetgo.security.crypto.jdbc.ContentNames;
 import kz.greetgo.security.crypto.jdbc.DbDialect;
@@ -133,26 +132,8 @@ public class CryptoBuilderKeysInDb {
   ContentNames privateKeyNames = namesForPrivateKey.fix();
   ContentNames publicKeyNames = namesForPublicKey.fix();
 
-  public Crypto build() {
-    dialect = calcDialect();
-
-    prepareDDL();
-
-    JdbcContentAccess privateKeyAccess
-      = new JdbcContentAccess(jdbc, privateKeyNames, createTableDDL_privateKey, dialect);
-
-    JdbcContentAccess publicKeyAccess
-      = new JdbcContentAccess(jdbc, publicKeyNames, createTableDDL_publicKey, dialect);
-
-    return parent.build(privateKeyAccess, publicKeyAccess);
-  }
-
   private void prepareDDL() {
     if (Objects.equals(privateKeyNames.tableName, publicKeyNames.tableName)) {
-
-      if (!Objects.equals(privateKeyNames.idFieldName, publicKeyNames.idFieldName)) {
-        throw new NotSameIdFieldNames(privateKeyNames.idFieldName, publicKeyNames.idFieldName);
-      }
 
       if (privateIdFieldLength != publicIdFieldLength) {
         throw new NotEqualsIdFieldLengths(privateIdFieldLength, publicIdFieldLength);
@@ -217,5 +198,19 @@ public class CryptoBuilderKeysInDb {
       default:
         throw new UnsupportedDb(dbType);
     }
+  }
+
+  public Crypto build() {
+    dialect = calcDialect();
+
+    prepareDDL();
+
+    JdbcContentAccess privateKeyAccess
+      = new JdbcContentAccess(jdbc, privateKeyNames, createTableDDL_privateKey, dialect);
+
+    JdbcContentAccess publicKeyAccess
+      = new JdbcContentAccess(jdbc, publicKeyNames, createTableDDL_publicKey, dialect);
+
+    return parent.build(privateKeyAccess, publicKeyAccess);
   }
 }

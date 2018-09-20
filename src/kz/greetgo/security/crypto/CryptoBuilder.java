@@ -73,7 +73,12 @@ public class CryptoBuilder {
   }
 
   public CryptoBuilderKeysInMongo inMongo(MongoCollection<Document> collection) {
-    Objects.requireNonNull(collection);
-    return new CryptoBuilderKeysInMongo(this, collection);
+    return inMongo(collection, collection);
+  }
+
+  public CryptoBuilderKeysInMongo inMongo(MongoCollection<Document> privateKey, MongoCollection<Document> publicKey) {
+    Objects.requireNonNull(privateKey);
+    Objects.requireNonNull(publicKey);
+    return new CryptoBuilderKeysInMongo(this, privateKey, publicKey);
   }
 }
