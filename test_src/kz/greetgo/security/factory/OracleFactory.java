@@ -13,11 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static kz.greetgo.conf.sys_params.SysParams.oracleAdminHost;
-import static kz.greetgo.conf.sys_params.SysParams.oracleAdminPassword;
-import static kz.greetgo.conf.sys_params.SysParams.oracleAdminPort;
-import static kz.greetgo.conf.sys_params.SysParams.oracleAdminSid;
-import static kz.greetgo.conf.sys_params.SysParams.oracleAdminUserid;
+import static kz.greetgo.conf.sys_params.SysParams.*;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 public class OracleFactory {
@@ -30,7 +26,7 @@ public class OracleFactory {
 
       try {
         ping();
-      } catch (SQLException e) {
+      } catch (RuntimeException e) {
         if (e.getMessage().startsWith("ORA-01017:")) {
           createDb();
           ping();
@@ -87,7 +83,7 @@ public class OracleFactory {
         //noinspection StatementWithEmptyBody
         if (e.getMessage().startsWith("ORA-02248:")) {
           //ignore
-        } else throw e;
+        } else { throw e; }
       }
 
       try {
@@ -96,7 +92,7 @@ public class OracleFactory {
         //noinspection StatementWithEmptyBody
         if (e.getMessage().startsWith("ORA-01918:")) {
           //ignore
-        } else throw e;
+        } else { throw e; }
       }
 
       exec(con, "create user " + username + " identified by " + password);
@@ -105,16 +101,27 @@ public class OracleFactory {
     }
   }
 
-  private void ping() throws ClassNotFoundException, SQLException {
-    try (Connection con = getUserConnection()) {
+  private void ping() throws ClassNotFoundException {
 
-      try (PreparedStatement ps = con.prepareStatement("select 2 from dual")) {
-        try (ResultSet rs = ps.executeQuery()) {
-          if (!rs.next()) throw new RuntimeException("Left result set");
-          assertThat(rs.getInt(1)).isEqualTo(2);
+
+    try {
+
+      try (Connection con = getUserConnection()) {
+
+        try (PreparedStatement ps = con.prepareStatement("select 2 from dual")) {
+          try (ResultSet rs = ps.executeQuery()) {
+            if (!rs.next()) { throw new RuntimeException("Left result set"); }
+            assertThat(rs.getInt(1)).isEqualTo(2);
+          }
         }
       }
+
+
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
     }
+
+
   }
 
   public static Connection getOracleAdminConnection() throws ClassNotFoundException, SQLException {

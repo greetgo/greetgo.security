@@ -5,6 +5,7 @@ import kz.greetgo.db.Jdbc;
 import kz.greetgo.db.TransactionManager;
 import kz.greetgo.security.crypto.errors.SqlWrapper;
 import kz.greetgo.security.errors.LeftPostgresJdbcUrl;
+import kz.greetgo.security.util.ExceptionUtil;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -34,12 +35,16 @@ class PostgresFactory {
 
       try {
         ping();
-      } catch (SQLException e) {
-        if ("28P01".equals(e.getSQLState())
-            || "3D000".equals(e.getSQLState())) {
-          createDb();
-          ping();
-          return directCreateJdbc();
+      } catch (RuntimeException e) {
+        SQLException sqlException = ExceptionUtil.extractSqlException(e);
+
+        if (sqlException != null) {
+          if ("28P01".equals(sqlException.getSQLState())
+              || "3D000".equals(sqlException.getSQLState())) {
+            createDb();
+            ping();
+            return directCreateJdbc();
+          }
         }
 
         throw e;
@@ -65,9 +70,15 @@ class PostgresFactory {
       protected DataSource getDataSource() {
         return new AbstractDataSource() {
           @Override
-          public Connection getConnection() throws SQLException {
-            return DriverManager.getConnection(
-                changeUrlDbName(pgAdminUrl(), dbName), dbName, password);
+          public Connection getConnection() {
+
+            try {
+
+              return DriverManager.getConnection(
+                  changeUrlDbName(pgAdminUrl(), dbName), dbName, password);
+            } catch (SQLException e) {
+              throw new RuntimeException(e);
+            }
           }
         };
       }
@@ -100,17 +111,24 @@ class PostgresFactory {
     }
   }
 
-  private void ping() throws ClassNotFoundException, SQLException {
-    Class.forName("org.postgresql.Driver");
-    try (Connection con = DriverManager.getConnection(
-        changeUrlDbName(pgAdminUrl(), dbName), dbName, password)) {
+  private void ping() throws ClassNotFoundException {
 
-      try (PreparedStatement ps = con.prepareStatement("select 2")) {
-        try (ResultSet rs = ps.executeQuery()) {
-          if (!rs.next()) { throw new RuntimeException("Left result set"); }
-          assertThat(rs.getInt(1)).isEqualTo(2);
+    try {
+
+      Class.forName("org.postgresql.Driver");
+      try (Connection con = DriverManager.getConnection(
+          changeUrlDbName(pgAdminUrl(), dbName), dbName, password)) {
+
+        try (PreparedStatement ps = con.prepareStatement("select 2")) {
+          try (ResultSet rs = ps.executeQuery()) {
+            if (!rs.next()) { throw new RuntimeException("Left result set"); }
+            assertThat(rs.getInt(1)).isEqualTo(2);
+          }
         }
       }
+
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
     }
   }
 }

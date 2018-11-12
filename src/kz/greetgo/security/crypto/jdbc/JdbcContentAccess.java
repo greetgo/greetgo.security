@@ -3,6 +3,7 @@ package kz.greetgo.security.crypto.jdbc;
 import kz.greetgo.db.Jdbc;
 import kz.greetgo.security.crypto.ContentAccess;
 import kz.greetgo.security.crypto.errors.SqlWrapper;
+import kz.greetgo.security.util.ErrorUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -57,7 +58,7 @@ public class JdbcContentAccess implements ContentAccess {
 
           createTable(con);
 
-        } else throw new SqlWrapper(e);
+        } else { throw new SqlWrapper(e); }
       }
 
       try {
@@ -68,7 +69,7 @@ public class JdbcContentAccess implements ContentAccess {
 
           update(con, bytes);
 
-        } else throw new SqlWrapper(e);
+        } else { throw new SqlWrapper(e); }
       }
 
       return null;
@@ -112,11 +113,17 @@ public class JdbcContentAccess implements ContentAccess {
     return jdbc.execute(con -> {
       try {
         return checkExists(con);
-      } catch (SQLException e) {
-        if (dialect.isNoTable(e)) {
-          createTable(con);
-          return checkExists(con);
+      } catch (Exception e) {
+
+        SQLException sqlException = ErrorUtil.extractSqlException(e);
+
+        if (sqlException != null) {
+          if (dialect.isNoTable(sqlException)) {
+            createTable(con);
+            return checkExists(con);
+          }
         }
+
         throw e;
       }
     });
@@ -127,7 +134,7 @@ public class JdbcContentAccess implements ContentAccess {
     try (PreparedStatement ps = con.prepareStatement(sql)) {
       ps.setString(1, names.idValue);
       try (ResultSet rs = ps.executeQuery()) {
-        if (!rs.next()) throw new RuntimeException("FATAL ERROR");
+        if (!rs.next()) { throw new RuntimeException("FATAL ERROR"); }
         return rs.getInt(1) > 0;
       }
     }
