@@ -24,7 +24,7 @@ class PostgresFactory {
 
   private static String changeUrlDbName(String url, String dbName) {
     int idx = url.lastIndexOf('/');
-    if (idx < 0) throw new LeftPostgresJdbcUrl("No slash character (/) in jdbc url = " + url);
+    if (idx < 0) { throw new LeftPostgresJdbcUrl("No slash character (/) in jdbc url = " + url); }
     return url.substring(0, idx + 1) + dbName;
   }
 
@@ -35,7 +35,8 @@ class PostgresFactory {
       try {
         ping();
       } catch (SQLException e) {
-        if ("28P01".equals(e.getSQLState())) {
+        if ("28P01".equals(e.getSQLState())
+            || "3D000".equals(e.getSQLState())) {
           createDb();
           ping();
           return directCreateJdbc();
@@ -66,7 +67,7 @@ class PostgresFactory {
           @Override
           public Connection getConnection() throws SQLException {
             return DriverManager.getConnection(
-              changeUrlDbName(pgAdminUrl(), dbName), dbName, password);
+                changeUrlDbName(pgAdminUrl(), dbName), dbName, password);
           }
         };
       }
@@ -82,6 +83,17 @@ class PostgresFactory {
   private void createDb() throws SQLException {
     try (Connection con = DriverManager.getConnection(pgAdminUrl(), pgAdminUserid(), pgAdminPassword())) {
 
+      try {
+        exec(con, "drop database " + dbName);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      try {
+        exec(con, "drop role " + dbName);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+
       exec(con, "create user " + dbName + " with password '" + password + "'");
       exec(con, "create database " + dbName + " with owner " + dbName);
 
@@ -91,11 +103,11 @@ class PostgresFactory {
   private void ping() throws ClassNotFoundException, SQLException {
     Class.forName("org.postgresql.Driver");
     try (Connection con = DriverManager.getConnection(
-      changeUrlDbName(pgAdminUrl(), dbName), dbName, password)) {
+        changeUrlDbName(pgAdminUrl(), dbName), dbName, password)) {
 
       try (PreparedStatement ps = con.prepareStatement("select 2")) {
         try (ResultSet rs = ps.executeQuery()) {
-          if (!rs.next()) throw new RuntimeException("Left result set");
+          if (!rs.next()) { throw new RuntimeException("Left result set"); }
           assertThat(rs.getInt(1)).isEqualTo(2);
         }
       }
