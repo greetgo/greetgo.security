@@ -9,6 +9,7 @@ import kz.greetgo.security.crypto.errors.NotEqualsIdFieldLengths;
 import kz.greetgo.security.crypto.errors.UnsupportedDb;
 import kz.greetgo.security.factory.JdbcFactory;
 import kz.greetgo.security.factory.OracleFactory;
+import kz.greetgo.security.util.DbLoggingProxyFactory;
 import kz.greetgo.security.util.SkipListener;
 import kz.greetgo.security.util.TestMongoUtil;
 import kz.greetgo.util.RND;
@@ -106,12 +107,21 @@ public class CryptoTest {
 
         return newCryptoBuilder()
           .setKeySize(keySize)
-          .inDb(dbType, jdbc)
+          .inDb(dbType, DbLoggingProxyFactory.wrap(jdbc, createSqlViewer()))
           .setConfig(new CryptoSourceConfigDefault())
           .setTableName("crypto_keys_" + suffix)
           .setValueFieldNameForPrivateKey("c_private")
           .setValueFieldNameForPublicKey("c_public")
           .build();
+      }
+    };
+  }
+
+  private DbLoggingProxyFactory.AbstractSqlViewer createSqlViewer() {
+    return new DbLoggingProxyFactory.AbstractSqlViewer() {
+      @Override
+      protected void logTrace(String message) {
+        System.out.println(message);
       }
     };
   }
