@@ -3,7 +3,7 @@ package kz.greetgo.security.crypto;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
-class CryptoBuilderKeysInMongo {
+public class CryptoBuilderKeysInMongo {
 
   private final CryptoBuilder parent;
   private final MongoCollection<Document> forPrivateKey;
