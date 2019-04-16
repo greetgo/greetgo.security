@@ -1,5 +1,7 @@
 package kz.greetgo.security.session;
 
+import kz.greetgo.security.errors.SerializedClassChanged;
+
 import java.security.SecureRandom;
 import java.util.Calendar;
 import java.util.Date;
@@ -91,8 +93,13 @@ class SessionServiceImpl implements SessionService {
     return identity;
   }
 
+  private static <T> T cast(Object object) {
+    //noinspection unchecked
+    return (T) object;
+  }
+
   @Override
-  public Object getSessionData(String sessionId) {
+  public <T> T getSessionData(String sessionId) {
 
     if (removedSessionIds.containsKey(sessionId)) {
       return null;
@@ -102,21 +109,33 @@ class SessionServiceImpl implements SessionService {
     {
       SessionCache sessionCache = sessionCacheMap.get(sessionId);
       if (sessionCache != null) {
-        return sessionCache.sessionData;
+        return cast(sessionCache.sessionData);
       }
     }
 
-    return loadSession(sessionId).map(row -> row.sessionData).orElse(null);
+    return cast(loadSession(sessionId).map(row -> row.sessionData).orElse(null));
+
   }
 
   private Optional<SessionRow> loadSession(String sessionId) {
-    SessionRow sessionRow = builder.storage.loadSession(sessionId);
-    if (sessionRow == null) {
+
+    try {
+
+      SessionRow sessionRow = builder.storage.loadSession(sessionId);
+      if (sessionRow == null) {
+        return Optional.empty();
+      }
+
+      sessionCacheMap.put(sessionId, sessionRow.toCacheRecord());
+      return Optional.of(sessionRow);
+
+    } catch (SerializedClassChanged e) {
+
       return Optional.empty();
+
     }
 
-    sessionCacheMap.put(sessionId, sessionRow.toCacheRecord());
-    return Optional.of(sessionRow);
+
   }
 
   @Override
