@@ -1,8 +1,8 @@
 package kz.greetgo.security.session;
 
 import kz.greetgo.security.crypto.Crypto;
+import org.bson.internal.Base64;
 
-import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 
 public class SaltGeneratorCryptoBridge implements SaltGenerator {
@@ -18,7 +18,7 @@ public class SaltGeneratorCryptoBridge implements SaltGenerator {
   public String generateSalt(String str) {
     byte[] saltBytes = crypto.encrypt(str.getBytes(StandardCharsets.UTF_8));
 
-    String salt = DatatypeConverter.printBase64Binary(saltBytes);
+    String salt = Base64.encode(saltBytes);
     salt = salt.replace('/', '$').replace('+', '~');
     salt = salt.substring(0, salt.length() - 1);
 

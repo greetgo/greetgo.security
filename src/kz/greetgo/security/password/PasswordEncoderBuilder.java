@@ -1,6 +1,7 @@
 package kz.greetgo.security.password;
 
-import javax.xml.bind.DatatypeConverter;
+import org.bson.internal.Base64;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -43,7 +44,7 @@ public class PasswordEncoderBuilder {
             digest.update(password.getBytes(StandardCharsets.UTF_8));
           }
 
-          String base64 = DatatypeConverter.printBase64Binary(digest.digest());
+          String base64 = Base64.encode(digest.digest());
           base64 = base64.replace('/', '$');
           base64 = base64.replace('+', '~');
           base64 = base64.substring(0, base64.length() - 1);
