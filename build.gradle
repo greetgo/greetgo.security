@@ -9,7 +9,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'idea'
 
-version = '0.0.7'
+version = '0.0.8'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-  ext.greetgoDbVersion = '2.3.1'
+  ext.greetgoDbVersion = '2.3.6'
   ext.mongoDriverVersion = '3.8.1'
 
   compileOnly "kz.greetgo.db:greetgo.db:$greetgoDbVersion"
