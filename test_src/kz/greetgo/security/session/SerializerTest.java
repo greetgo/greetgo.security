@@ -1,5 +1,6 @@
 package kz.greetgo.security.session;
 
+import kz.greetgo.security.errors.SerializedClassChanged;
 import kz.greetgo.util.RND;
 import org.testng.annotations.Test;
 
@@ -88,7 +89,6 @@ public class SerializerTest {
     //
 
     assertThat(o2).isNotNull();
-    //noinspection ConstantConditions
     assertThat(o2.dateField).isEqualTo(o1.dateField);
     assertThat(o2.intField).isEqualTo(o1.intField);
     assertThat(o2.strField).isEqualTo(o1.strField);
@@ -113,4 +113,21 @@ public class SerializerTest {
 
     assertThat(o2).isNull();
   }
+
+  @Test(expectedExceptions = SerializedClassChanged.class)
+  public void serializeToStr_leftClassName() {
+
+    //noinspection SpellCheckingInspection
+    String serializedStr1 = "rO0ABXNyADZrei5ncmVldGdvLnNlY3VyaXR5LnNlc3Npb24uU2VyaWFsaXplclRlc3QkVGVzdE9iamVjdDEm" +
+      "TymSeA$X$QIAA0kACGludEZpZWxkTAAJZGF0ZUZpZWxkdAAQTGphdmEvdXRpbC9EYXRlO0wACHN0ckZpZWxkdAASTGphdmEvbGFuZy9TdH" +
+      "Jpbmc7eHAAD5onc3IADmphdmEudXRpbC5EYXRlaGqBAUtZdBkDAAB4cHcI$$$$lsPLpjd4dAAP0YTQqdCfV9CwQtCec1Jt";
+
+    //
+    //
+    Serializer.deserializeFromStr(serializedStr1);
+    //
+    //
+
+  }
+
 }

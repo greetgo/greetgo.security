@@ -42,7 +42,7 @@ public class Serializer {
 
     } catch (RuntimeException e) {
       throw e;
-    } catch (InvalidClassException e) {
+    } catch (InvalidClassException | ClassNotFoundException e) {
       throw new SerializedClassChanged(e);
     } catch (Exception e) {
       throw new RuntimeException(e);
