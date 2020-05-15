@@ -30,7 +30,7 @@ public class CryptoBridge implements Crypto {
       cipher.init(Cipher.ENCRYPT_MODE, cryptoSource.getPublicKey());
       return cipher.doFinal(bytes);
     } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
-      if (trace != null) trace.trace("CP g5hg6v756v54", e);
+      if (trace != null) trace.trace("CP 24WwTRF26U", e);
       throw new RuntimeException(e);
     }
   }
@@ -43,10 +43,10 @@ public class CryptoBridge implements Crypto {
       return cipher.doFinal(encryptedBytes);
 
     } catch (BadPaddingException | IllegalBlockSizeException e) {
-      if (trace != null) trace.trace("CP beg5btne3j", e);
+      if (trace != null) trace.trace("CP A5dm6oys4i", e);
       return null;
     } catch (InvalidKeyException e) {
-      if (trace != null) trace.trace("CP geg3y5hbeh", e);
+      if (trace != null) trace.trace("CP txLAlobOu7", e);
       throw new RuntimeException(e);
     }
   }
@@ -161,7 +161,7 @@ public class CryptoBridge implements Crypto {
     try (ObjectOutputStream oos = new ObjectOutputStream(bOut)) {
       oos.writeObject(encryptedData);
     } catch (IOException e) {
-      if (trace != null) trace.trace("CP qw3h54htjfi", e);
+      if (trace != null) trace.trace("CP tToHF5T7vr", e);
       throw new RuntimeException(e);
     }
 
@@ -180,7 +180,7 @@ public class CryptoBridge implements Crypto {
       return encryptedData.decryptAndGet(cryptoSource);
 
     } catch (IOException | ClassNotFoundException | ClassCastException e) {
-      if (trace != null) trace.trace("CP wbrjdftdshs", e);
+      if (trace != null) trace.trace("CP 6c37UGb42g", e);
       return null;
     }
 
@@ -199,7 +199,7 @@ public class CryptoBridge implements Crypto {
       return cipher.doFinal(hash1);
 
     } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
-      if (trace != null) trace.trace("CP s2htvfyhdtew", e);
+      if (trace != null) trace.trace("CP 7xTj50ch06", e);
       throw new RuntimeException(e);
     }
   }
@@ -207,7 +207,7 @@ public class CryptoBridge implements Crypto {
   @Override
   public boolean verifySignature(byte[] bytes, byte[] signature) {
     if (signature == null || bytes == null) {
-      if (trace != null) trace.trace("CP bwhe4y56fghd");
+      if (trace != null) trace.trace("CP I1iC54087r");
       return false;
     }
     try {
@@ -220,29 +220,34 @@ public class CryptoBridge implements Crypto {
       final byte[] hash2 = cipher.doFinal(signature);
 
       if (hash1.length != hash2.length) {
-        if (trace != null) trace.trace("CP 4frgfuibv3");
+        if (trace != null) trace.trace("CP DR5Xd1NH19");
         return false;
       }
 
       for (int i = 0, n = hash1.length; i < n; i++) {
         if (hash1[i] != hash2[i]) {
-          if (trace != null) trace.trace("CP cye6tje3fo0hj");
+          if (trace != null) trace.trace("CP 7tJoTkWm0H");
           return false;
         }
       }
 
-      if (trace != null) trace.trace("CP 1f6cy7vyhrjjui");
+      if (trace != null) trace.trace("CP m9t3OpQL0O");
       return true;
 
     } catch (BadPaddingException | IllegalBlockSizeException | ArrayIndexOutOfBoundsException e) {
 
-      if (trace != null) trace.trace("CP w48shr3434e", e);
+      if (trace != null) trace.trace("CP AJ1k7Gy2Hk", e);
       return false;
 
     } catch (InvalidKeyException e) {
-      if (trace != null) trace.trace("CP q23hrbwh4g5", e);
+      if (trace != null) trace.trace("CP 08saDm2rsb", e);
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public byte[] makeHash(byte[] sourceBytes) {
+    return cryptoSource.getMessageDigest().digest(sourceBytes);
   }
 
   @Override

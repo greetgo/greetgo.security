@@ -34,9 +34,9 @@ public class SessionServiceBuilder {
     return this;
   }
 
-  public SessionServiceBuilder setSaltGeneratorOnCrypto(Crypto crypto, int saltLength) {
+  public SessionServiceBuilder setSaltGeneratorOnCrypto(Crypto crypto, int saltLength, byte[] saltMixture) {
     checkBuilt();
-    this.saltGenerator = new SaltGeneratorCryptoBridge(crypto, saltLength);
+    this.saltGenerator = new SaltGeneratorCryptoBridge(crypto, saltLength, saltMixture);
     return this;
   }
 

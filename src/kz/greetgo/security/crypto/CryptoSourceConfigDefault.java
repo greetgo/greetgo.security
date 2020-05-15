@@ -3,6 +3,7 @@ package kz.greetgo.security.crypto;
 public class CryptoSourceConfigDefault implements CryptoSourceConfig {
   @Override
   public String secureRandomAlgorithm() {
+    //noinspection SpellCheckingInspection
     return "SHA1PRNG";
   }
 

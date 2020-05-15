@@ -610,7 +610,7 @@ public class SessionServiceTest {
       .setSessionIdLength(17)
       .setTokenLength(17)
       .setStorage(sessionStorage)
-      .setSaltGeneratorOnCrypto(crypto, 17)
+      .setSaltGeneratorOnCrypto(crypto, 17, RND.byteArray(100))
       .build();
 
     SessionIdentity identity = sessionService.createSession(null);

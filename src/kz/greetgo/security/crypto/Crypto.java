@@ -18,7 +18,7 @@ public interface Crypto {
    * Encrypt data using public key
    *
    * @param bytes data to encrypt
-   * @return entrypted data
+   * @return encrypted data
    */
   byte[] encrypt(byte[] bytes);
 
@@ -53,4 +53,12 @@ public interface Crypto {
    * @return security random generator
    */
   SecureRandom rnd();
+
+  /**
+   * Generate hash
+   *
+   * @param sourceBytes source data
+   * @return hash
+   */
+  byte[] makeHash(byte[] sourceBytes);
 }

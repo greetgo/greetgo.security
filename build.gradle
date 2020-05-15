@@ -1,6 +1,8 @@
 plugins {
+  //noinspection SpellCheckingInspection
   id "org.ajoberstar.grgit" version "2.3.0"
   id "kz.greetgo.upload-to-maven" version "0.0.5"
+  id "kz.greetgo.upload-to-gg-repo" version "0.0.5"
 }
 
 def ggRepo = System.getenv('GG_REPO')
@@ -9,7 +11,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'idea'
 
-version = '0.0.9'
+version = '0.0.10'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -36,9 +38,11 @@ dependencies {
   testCompile "kz.greetgo:greetgo.util:2.0.0"
 
   //jdbc drivers
+  //noinspection SpellCheckingInspection
   testCompile "org.postgresql:postgresql:9.4-1202-jdbc42"
 
   if (ggRepo?.trim()) {
+    //noinspection SpellCheckingInspection
     testCompile "greetgo.3rd-party:oracle-ojdbc6_g:11.2.0.3"
     testCompile "greetgo.3rd-party:oracle-ucp:11.2.0.3"
   } else {
@@ -46,11 +50,14 @@ dependencies {
   }
 
   //tests
+  //noinspection SpellCheckingInspection
   testCompile 'org.testng:testng:6.5.1'
+  //noinspection SpellCheckingInspection
   testCompile 'org.easytesting:fest-assert-core:2.0M10'
 }
 
 tasks.withType(Javadoc) {
+  //noinspection SpellCheckingInspection
   options.addStringOption('Xdoclint:none', '-quiet')
   options.addStringOption('encoding', 'UTF-8')
   options.addStringOption('charSet', 'UTF-8')
@@ -109,6 +116,7 @@ uploadToMavenCentral {
   }
   developer {
     id = 'pompei'
+    //noinspection SpellCheckingInspection
     name = 'Evgenij Kolpakov'
     email = 'ekolpakov@greet-go.kz'
   }

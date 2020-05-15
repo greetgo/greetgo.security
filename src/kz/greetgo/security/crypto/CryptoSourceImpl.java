@@ -76,7 +76,10 @@ public class CryptoSourceImpl implements CryptoSource {
 
   @Override
   public SecureRandom getRandom() {
-    if (random.get() != null) return random.get();
+    {
+      SecureRandom secureRandom = random.get();
+      if (secureRandom != null) return secureRandom;
+    }
     try {
       SecureRandom instance = SecureRandom.getInstance(conf.secureRandomAlgorithm());
       random.set(instance);
