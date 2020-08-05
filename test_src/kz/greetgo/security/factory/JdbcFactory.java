@@ -14,7 +14,6 @@ public class JdbcFactory {
   public Jdbc create() {
     if (dbType == DbType.Postgres) {
       PostgresFactory factory = new PostgresFactory();
-      factory.dbName = dbName;
       return factory.create();
     }
 

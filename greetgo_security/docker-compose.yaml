@@ -1,0 +1,13 @@
+version: "2.3"
+services:
+
+  postgres:
+    image: postgres:12.0
+    mem_limit: 200M
+    container_name: pg_greetgo_security
+    restart: always
+    ports:
+      - "12012:5432"
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d

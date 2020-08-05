@@ -57,7 +57,7 @@ public class JdbcContentAccessTest {
 
     assertThat(contentAccess.exists()).isFalse();
 
-    byte content[] = RND.byteArray(1000);
+    byte[] content = RND.byteArray(1000);
 
     //
     //
