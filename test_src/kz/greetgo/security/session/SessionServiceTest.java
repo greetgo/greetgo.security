@@ -117,7 +117,7 @@ public class SessionServiceTest {
     assertThat(impl.sessionCacheMap).containsKey(identity.id);
     assertThat(impl2.sessionCacheMap).containsKey(identity.id);
 
-    assertThat(sessionStorage.calls).hasSize(1);
+    assertThat(sessionStorage.calls).hasSize(2);
 
     //
     //
@@ -127,7 +127,7 @@ public class SessionServiceTest {
 
     assertThat(actual2).isEqualTo(sessionData);
     System.out.println("kLF3f5x5uy :: sessionStorage.calls = " + sessionStorage.calls);
-    assertThat(sessionStorage.calls).hasSize(1);
+    assertThat(sessionStorage.calls).hasSize(2);
 
   }
 

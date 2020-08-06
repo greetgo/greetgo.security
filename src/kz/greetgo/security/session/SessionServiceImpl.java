@@ -1,6 +1,8 @@
 package kz.greetgo.security.session;
 
 import kz.greetgo.security.errors.SerializedClassChanged;
+import kz.greetgo.security.session.cache.Cache;
+import kz.greetgo.security.session.cache.CacheBuilder;
 
 import java.security.SecureRandom;
 import java.util.Calendar;
@@ -49,6 +51,11 @@ class SessionServiceImpl implements SessionService {
 
   public SessionServiceImpl(SessionServiceBuilder builder) {
     this.builder = builder;
+    lastTouchedCache = new CacheBuilder<String, Date>()
+      .loader(builder.storage::loadLastTouchedAt)
+      .refreshTimeoutSec(builder.lastTouchedCacheTimeoutSec)
+      .maxSize(builder.lastTouchedCacheSize)
+      .build();
   }
 
   static class SessionCache {
@@ -93,9 +100,10 @@ class SessionServiceImpl implements SessionService {
     return identity;
   }
 
-  //TODO pompei добавить этому методу кэширование
+  private final Cache<String, Date> lastTouchedCache;
+
   private Date loadLastTouchedAt(String sessionId) {
-    return builder.storage.loadLastTouchedAt(sessionId);
+    return lastTouchedCache.get(sessionId);
   }
 
   private static <T> T cast(Object object) {
@@ -109,7 +117,6 @@ class SessionServiceImpl implements SessionService {
     if (removedSessionIds.containsKey(sessionId)) {
       return null;
     }
-
 
     {
       SessionCache sessionCache = sessionCacheMap.get(sessionId);

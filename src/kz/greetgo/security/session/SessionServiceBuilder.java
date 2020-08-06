@@ -2,6 +2,10 @@ package kz.greetgo.security.session;
 
 import kz.greetgo.security.crypto.Crypto;
 
+import java.util.Objects;
+import java.util.function.IntSupplier;
+import java.util.function.LongSupplier;
+
 public class SessionServiceBuilder {
   SessionStorage storage;
   SaltGenerator saltGenerator;
@@ -9,6 +13,9 @@ public class SessionServiceBuilder {
   int oldSessionAgeInHours = 24;
   int sessionIdLength = 15;
   int tokenLength = 15;
+
+  LongSupplier lastTouchedCacheTimeoutSec = () -> 30;
+  IntSupplier lastTouchedCacheSize = () -> 1_000_000;
 
   private SessionServiceBuilder() {}
 
@@ -56,6 +63,24 @@ public class SessionServiceBuilder {
     checkBuilt();
     this.tokenLength = tokenLength;
     return this;
+  }
+
+  public SessionServiceBuilder setLastTouchedCacheTimeoutSec(LongSupplier lastTouchedCacheTimeoutSec) {
+    this.lastTouchedCacheTimeoutSec = Objects.requireNonNull(lastTouchedCacheTimeoutSec);
+    return this;
+  }
+
+  public SessionServiceBuilder setLastTouchedCacheTimeoutSec(long dbCacheTimeoutSec) {
+    return setLastTouchedCacheTimeoutSec(() -> dbCacheTimeoutSec);
+  }
+
+  public SessionServiceBuilder setLastTouchedCacheSize(IntSupplier lastTouchedCacheSize) {
+    this.lastTouchedCacheSize = Objects.requireNonNull(lastTouchedCacheSize);
+    return this;
+  }
+
+  public SessionServiceBuilder setLastTouchedCacheSize(int lastTouchedCacheSize) {
+    return setLastTouchedCacheSize(() -> lastTouchedCacheSize);
   }
 
   public SessionService build() {
