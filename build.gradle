@@ -11,7 +11,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'idea'
 
-version = '0.0.10'
+version = '0.0.11'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -100,7 +100,7 @@ sourceSets.test.resources {
 jar {
   manifest {
     attributes 'Specification-Title': project.name
-    attributes 'Specification-Version': version
+    attributes 'Specification-Version': archiveVersion
     attributes 'Specification-Vendor': "greetgo!"
     attributes 'Implementation-Version': grgit ? grgit.head().id : "unknown"
     attributes 'Created-By': System.getProperty("user.name")
