@@ -24,7 +24,9 @@ public class SessionServiceTest {
 
   TestSessionStorage sessionStorage;
   SessionService sessionService;
+  SessionService sessionService2;
   SessionServiceImpl impl;
+  SessionServiceImpl impl2;
   final SaltGenerator saltGenerator = str -> "S" + str.substring(0, 5) + "S";
 
   private static final int OLD_SESSION_AGE_IN_HOURS = 7;
@@ -42,6 +44,16 @@ public class SessionServiceTest {
       .build();
 
     impl = (SessionServiceImpl) sessionService;
+
+    sessionService2 = newSessionServiceBuilder()
+      .setOldSessionAgeInHours(OLD_SESSION_AGE_IN_HOURS)
+      .setSessionIdLength(17)
+      .setTokenLength(17)
+      .setStorage(sessionStorage)
+      .setSaltGenerator(saltGenerator)
+      .build();
+
+    impl2 = (SessionServiceImpl) sessionService2;
   }
 
   @Test
@@ -81,6 +93,41 @@ public class SessionServiceTest {
     assertThat(actual).isEqualTo(sessionData);
 
     assertThat(impl.sessionCacheMap).containsKey(identity.id);
+
+  }
+
+  @Test
+  public void getSessionData__checkCache() {
+
+    sessionStorage.clean();
+
+    String sessionData = "SESSION DATA " + RND.str(10);
+    SessionIdentity identity = sessionService.createSession(sessionData);
+
+    assertThat(impl2.sessionCacheMap).doesNotContainKey(identity.id);
+
+    //
+    //
+    Object actual = sessionService2.getSessionData(identity.id);
+    //
+    //
+
+    assertThat(actual).isEqualTo(sessionData);
+
+    assertThat(impl.sessionCacheMap).containsKey(identity.id);
+    assertThat(impl2.sessionCacheMap).containsKey(identity.id);
+
+    assertThat(sessionStorage.calls).hasSize(1);
+
+    //
+    //
+    Object actual2 = sessionService2.getSessionData(identity.id);
+    //
+    //
+
+    assertThat(actual2).isEqualTo(sessionData);
+    System.out.println("kLF3f5x5uy :: sessionStorage.calls = " + sessionStorage.calls);
+    assertThat(sessionStorage.calls).hasSize(1);
 
   }
 

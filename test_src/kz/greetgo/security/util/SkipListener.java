@@ -11,24 +11,29 @@ public class SkipListener extends ITestListenerAbstract {
 
   @Override
   public void onTestFailure(ITestResult result) {
-    if (noOraDriver(result)) { return; }
-    if (noPostgresAdminEnv(result)) { return; }
+    if (noOraDriver(result)) {
+      return;
+    }
+    if (noPostgresAdminEnv(result)) {
+      return;
+    }
   }
 
   private boolean noPostgresAdminEnv(ITestResult result) {
-    if (!isPostgresEnvError(result.getThrowable())) { return false; }
+    if (!isPostgresEnvError(result.getThrowable())) {
+      return false;
+    }
     result.setStatus(ITestResult.SKIP);
-    if (printedNoPgEnvAccess) { return true; }
+    if (printedNoPgEnvAccess) {
+      return true;
+    }
     printedNoPgEnvAccess = true;
 
     printNote("" +
       "********************************************************************************************************\n" +
       "\n" +
       "    Some test skipped because no access to PostgreSQL DB\n\n" +
-      "    To access to PostgreSQL DB you can add following environment variables:\n\n" +
-      "        PG_ADMIN_URL=jdbc:postgresql://localhost:5432/postgres\n" +
-      "        PG_ADMIN_USERID=postgres\n" +
-      "        PG_ADMIN_PASSWORD=secret\n" +
+      "    Execute script `restart_docker_with_del_volumes.sh`\n" +
       "\n" +
       "********************************************************************************************************\n" +
       "");
@@ -83,6 +88,7 @@ public class SkipListener extends ITestListenerAbstract {
     printedNoOraDriver = true;
 
     String pd = System.getProperty("PROJECT_DIR");
+    //noinspection SpellCheckingInspection
     printNote("" +
       "********************************************************************************************************\n" +
       "\n" +

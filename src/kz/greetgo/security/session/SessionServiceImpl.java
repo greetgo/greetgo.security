@@ -84,13 +84,18 @@ class SessionServiceImpl implements SessionService {
 
     builder.storage.insertSession(identity, sessionData);
 
-    Date lastTouchedAt = builder.storage.loadLastTouchedAt(identity.id);
+    Date lastTouchedAt = loadLastTouchedAt(identity.id);
 
     SessionCache sessionCache = new SessionCache(sessionData, token, lastTouchedAt);
 
     sessionCacheMap.put(sessionId, sessionCache);
 
     return identity;
+  }
+
+  //TODO pompei добавить этому методу кэширование
+  private Date loadLastTouchedAt(String sessionId) {
+    return builder.storage.loadLastTouchedAt(sessionId);
   }
 
   private static <T> T cast(Object object) {
