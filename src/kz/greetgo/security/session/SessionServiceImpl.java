@@ -24,21 +24,21 @@ class SessionServiceImpl implements SessionService {
   private final SessionServiceBuilder builder;
 
   @SuppressWarnings("SpellCheckingInspection")
-  private static final String ENG = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  private static final String DEG = "0123456789";
-  private static final char[] ALL = (
+  private static final String ENG     = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  private static final String DEG     = "0123456789";
+  private static final char[] ALL     = (
     ENG.toLowerCase() + ENG.toUpperCase() + DEG
   ).toCharArray();
-  private static final int ALL_LEN = ALL.length;
-  private final Random random = new SecureRandom();
+  private static final int    ALL_LEN = ALL.length;
+  private final        Random random  = new SecureRandom();
 
   private String generateId(int length) {
 
     int[] randomIndexes = random.ints()
-      .limit(length)
-      .map(i -> i < 0 ? -i : i)
-      .map(i -> i % ALL_LEN)
-      .toArray();
+                                .limit(length)
+                                .map(i -> i < 0 ? -i : i)
+                                .map(i -> i % ALL_LEN)
+                                .toArray();
 
     char[] chars = new char[length];
 
@@ -50,7 +50,7 @@ class SessionServiceImpl implements SessionService {
   }
 
   public SessionServiceImpl(SessionServiceBuilder builder) {
-    this.builder = builder;
+    this.builder     = builder;
     lastTouchedCache = new CacheBuilder<String, Date>()
       .loader(builder.storage::loadLastTouchedAt)
       .refreshTimeoutSec(builder.lastTouchedCacheTimeoutSec)
@@ -59,19 +59,19 @@ class SessionServiceImpl implements SessionService {
   }
 
   static class SessionCache {
-    final Object sessionData;
-    final String token;
+    final Object                sessionData;
+    final String                token;
     final AtomicReference<Date> lastTouchedAt;
 
     public SessionCache(Object sessionData, String token, Date lastTouchedAt) {
-      this.sessionData = sessionData;
-      this.token = token;
+      this.sessionData   = sessionData;
+      this.token         = token;
       this.lastTouchedAt = new AtomicReference<>(lastTouchedAt);
     }
   }
 
-  final ConcurrentMap<String, SessionCache> sessionCacheMap = new ConcurrentHashMap<>();
-  final ConcurrentMap<String, String> removedSessionIds = new ConcurrentHashMap<>();
+  final ConcurrentMap<String, SessionCache> sessionCacheMap   = new ConcurrentHashMap<>();
+  final ConcurrentMap<String, String>       removedSessionIds = new ConcurrentHashMap<>();
 
   @Override
   public Map<String, String> statisticsInfo() {
@@ -83,11 +83,11 @@ class SessionServiceImpl implements SessionService {
 
   @Override
   public SessionIdentity createSession(Object sessionData) {
-    String sessionIdPart = generateId(builder.sessionIdLength);
-    String sessionSalt = builder.saltGenerator.generateSalt(sessionIdPart);
-    String sessionId = new SessionId(sessionSalt, sessionIdPart).toString();
-    String token = generateId(builder.tokenLength);
-    SessionIdentity identity = new SessionIdentity(sessionId, token);
+    String          sessionIdPart = generateId(builder.sessionIdLength);
+    String          sessionSalt   = builder.saltGenerator.generateSalt(sessionIdPart);
+    String          sessionId     = new SessionId(sessionSalt, sessionIdPart).toString();
+    String          token         = generateId(builder.tokenLength);
+    SessionIdentity identity      = new SessionIdentity(sessionId, token);
 
     builder.storage.insertSession(identity, sessionData);
 
@@ -189,6 +189,16 @@ class SessionServiceImpl implements SessionService {
   }
 
   @Override
+  public Optional<String> getToken(String sessionId) {
+    SessionCache cache = sessionCacheMap.get(sessionId);
+    if (cache != null) {
+      return Optional.ofNullable(cache.token);
+    }
+
+    return loadSession(sessionId).map(x -> x.token);
+  }
+
+  @Override
   public void zeroSessionAge(String sessionId) {
 
     if (!verifyId(sessionId)) {
@@ -217,7 +227,9 @@ class SessionServiceImpl implements SessionService {
 
   @Override
   public void removeSession(String sessionId) {
-    if (!verifyId(sessionId)) return;
+    if (!verifyId(sessionId)) {
+      return;
+    }
     sessionCacheMap.remove(sessionId);
     builder.storage.remove(sessionId);
     removedSessionIds.put(sessionId, sessionId);
@@ -232,9 +244,9 @@ class SessionServiceImpl implements SessionService {
     calendar.add(Calendar.HOUR, -builder.oldSessionAgeInHours);
 
     Set<String> removingIds = sessionCacheMap.entrySet().stream()
-      .filter(s -> s.getValue().lastTouchedAt.get().before(calendar.getTime()))
-      .map(Map.Entry::getKey)
-      .collect(Collectors.toSet());
+                                             .filter(s -> s.getValue().lastTouchedAt.get().before(calendar.getTime()))
+                                             .map(Map.Entry::getKey)
+                                             .collect(Collectors.toSet());
 
     removingIds.forEach(sessionCacheMap::remove);
     removingIds.forEach(id -> removedSessionIds.put(id, id));

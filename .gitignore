@@ -1,32 +1,102 @@
-# IDE files #
-#############
-.idea/
-.classpath
-.project
-*.ids
-*.iml
-*.ipr
-*.iws
+# Gradle
+# ------
+.gradle
+/build/
+*/**/build/
+/buildSrc/build
+/buildSrc/subprojects/*/build
+/subprojects/*/build
+/subprojects/docs/src/samples/**/build
+/subprojects/internal-android-performance-testing/build-android-libs
 
-# Gradle files #
-################
-.gradle/
-build/
-out/
+# IDEA
+# ----
+.idea
+!/.idea
+/.idea/*
+!/.idea/codeStyles
+!/.idea/inspectionProfiles
+!/.idea/runConfigurations
+*/**/.idea
+.shelf
+*/**/*.iml
+*/**/*.ipr
+*/**/*.iws
+/*.iml
+/*.ipr
+/*.iws
+/buildSrc/.idea
+/buildSrc/.shelf
+/buildSrc/*.iml
+/buildSrc/*.ipr
+/buildSrc/*.iws
+/buildSrc/out
+/buildSrc/subprojects/*/*.iml
+/buildSrc/subprojects/*/out
+/out
+/subprojects/*/*.iml
+/subprojects/*/out
+/.teamcity/*.iml
+/.teamcity/target
+!/.teamcity/Gradle_Check_dsl.iml
 
-# OS generated files #
-######################
+# Eclipse
+# -------
+*.classpath
+*.project
+*.settings
+/bin
+/subprojects/*/bin
+atlassian-ide-plugin.xml
+.metadata/
+
+# NetBeans
+# --------
+.nb-gradle
+.nb-gradle-properties
+
+# Vim
+# ---
+*.sw[nop]
+
+# Emacs
+# -----
+*~
+\#*\#
+.\#*
+
+# Textmate
+# --------
+.textmate
+
+# Sublime Text
+# ------------
+*.sublime-*
+
+# jEnv
+# ----
+.java-version
+
+# macOS
+# ----
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
 
-# Logs and databases #
-######################
-*.log
-*.sqlite
-/classes
-/.shelf
+# HPROF
+# -----
+*.hprof
+
+# Work dirs
+# ---------
+/incoming-distributions
+/intTestHomeDir
+
+# Logs
+# ----
+/*.log
+
+# oh-my-zsh gradle plugin
+.gradletasknamecache
+
+# etc
+*/**/.attach_pid*
+.attach_pid*
